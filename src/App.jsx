@@ -16,7 +16,7 @@ function App() {
     },
     {
       title: "Capturing the Essence of a Phrase: Extracting Physical and Sensory Information from Text",
-      authors: ["Abhinav Gupta"],
+      authors: ["Abhinav Gupta", "Jesse Thomason", "Toben H. Mintz"],
       venue: "SoCal NLP Symposium 2024",
       year: "2024",
       description: "Developing computational methods to extract embodied sensory and physical information from textual descriptions, bridging the gap between language and grounded perception.",
