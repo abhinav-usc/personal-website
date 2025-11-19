@@ -46,7 +46,6 @@ function App() {
     { name: "Guitar", icon: "🎸", description: "Playing and learning new songs" },
     { name: "Cooking", icon: "🍳", description: "Experimenting with new recipes" },
     { name: "Reading", icon: "📚", description: "Fiction and non-fiction" },
-    { name: "Movies", icon: "🎬", description: "Cinema and film analysis" }
   ]
 
   const researchProjects = [
