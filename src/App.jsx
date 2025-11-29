@@ -99,7 +99,7 @@ function App() {
       myRole: "As part of a team of 4, I'm designing experimental protocols for game-theoretic scenarios, implementing LLM evaluation frameworks to test theory of mind capabilities, and analyzing behavioral patterns to compare LLM predictions against actual human decision-making data from strategic games.",
       impact: "Understanding how LLMs encode social reasoning is critical for developing AI systems that can effectively collaborate with humans, predict human needs and intentions, and align with human values in multi-agent settings.",
       tags: ["LLMs", "Game Theory", "Theory of Mind"],
-      link: "/public/Can_Large_Language_Models_Infer_Human_Actions_and_Motives_in_Strategic_Decision_Making_.pdf",
+      link: "/Can_Large_Language_Models_Infer_Human_Actions_and_Motives_in_Strategic_Decision_Making_.pdf",
       hasImage: true,
       hasDemo: false,
       images: [
@@ -138,7 +138,7 @@ function App() {
       myRole: "I developed the projection model architecture that maps from contextual embeddings to sensorimotor spaces, designed and ran experiments on emoji prediction and recommendation tasks, and performed quantitative analysis showing improved performance when incorporating sensorimotor grounding.",
       impact: "This work demonstrates practical applications of sensorimotor grounding in NLP, showing how incorporating embodied perception into language models can improve performance on tasks requiring understanding of physical and sensory concepts.",
       tags: ["NLP", "Grounded Language", "Computational Linguistics"],
-      link: "/public/Extracting_Sensorimotor_Information_from_Words_and_Emojis.pdf",
+      link: "/Extracting_Sensorimotor_Information_from_Words_and_Emojis.pdf",
       hasImage: true,
       hasDemo: true,
       images: [
@@ -167,7 +167,7 @@ function App() {
       myRole: "As part of a team of 4 students, I developed custom web scraping tools to extract parallel text from online sources, contributed to manual digitization of historical texts, and assisted in preprocessing and cleaning the parallel corpus for MT model training.",
       impact: "This work contributes to language preservation efforts by creating critical digital infrastructure for an endangered indigenous language, enabling future linguistic research and cultural heritage preservation.",
       tags: ["NLP", "Low-Resource Languages", "Machine Translation"],
-      link: "/public/156_Creating_a_Parallel_Corpus.pdf",
+      link: "/156_Creating_a_Parallel_Corpus.pdf",
       hasImage: true,
       hasDemo: false,
       images: [
