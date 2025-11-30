@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Mail, Github, Linkedin, FileText, Book, Briefcase, Code, Award, ExternalLink, FlaskConical, Users, Lightbulb, Laptop, MessageCircle } from 'lucide-react'
+import { Mail, Github, Linkedin, FileText, Book, Briefcase, Code, Award, ExternalLink, FlaskConical, Users, Lightbulb, Laptop, MessageCircle, GithubIcon } from 'lucide-react'
 import './App.css'
 
 // Custom hook for scroll animations
@@ -62,6 +62,7 @@ function App() {
       impact: "Understanding phonestheme grounding could reveal fundamental principles about how language connects to embodied experience at the sub-lexical level, informing both cognitive theories of language and practical applications in natural language generation.",
       tags: ["NLP", "Grounded Language", "Psycholinguistics"],
       link: "#",
+      code: "https://github.com/abhinav-usc/SENSE-model",
       hasImage: true,
       hasDemo: false,
       images: [
@@ -100,6 +101,7 @@ function App() {
       impact: "Understanding how LLMs encode social reasoning is critical for developing AI systems that can effectively collaborate with humans, predict human needs and intentions, and align with human values in multi-agent settings.",
       tags: ["LLMs", "Game Theory", "Theory of Mind"],
       link: "/Can_Large_Language_Models_Infer_Human_Actions_and_Motives_in_Strategic_Decision_Making_.pdf",
+      code: "",
       hasImage: true,
       hasDemo: false,
       images: [
@@ -139,6 +141,7 @@ function App() {
       impact: "This work demonstrates practical applications of sensorimotor grounding in NLP, showing how incorporating embodied perception into language models can improve performance on tasks requiring understanding of physical and sensory concepts.",
       tags: ["NLP", "Grounded Language", "Computational Linguistics"],
       link: "/Extracting_Sensorimotor_Information_from_Words_and_Emojis.pdf",
+      code: "https://github.com/abhinav-usc/SENSE-model",
       hasImage: true,
       hasDemo: true,
       images: [
@@ -168,6 +171,7 @@ function App() {
       impact: "This work contributes to language preservation efforts by creating critical digital infrastructure for an endangered indigenous language, enabling future linguistic research and cultural heritage preservation.",
       tags: ["NLP", "Low-Resource Languages", "Machine Translation"],
       link: "/156_Creating_a_Parallel_Corpus.pdf",
+      code: "",
       hasImage: true,
       hasDemo: false,
       images: [
@@ -534,6 +538,11 @@ function App() {
                         <ExternalLink size={14} /> View Paper
                       </a>
                     )}
+                    {paper.code !== '' && (
+                      <a href={paper.code} className="research-link" target="_blank" rel="noreferrer">
+                        <Github size={16} /> Github
+                      </a>
+                    )}
                     {paper.hasDemo && (
                       <span className="demo-coming-soon">🔧 Interactive demo in development</span>
                     )}
@@ -647,6 +656,11 @@ function App() {
                     {paper.link !== '#' && (
                       <a href={paper.link} className="research-link" target="_blank" rel="noreferrer">
                         <ExternalLink size={14} /> Paper
+                      </a>
+                    )}
+                    {paper.code !== '' && (
+                      <a href={paper.code} className="research-link" target="_blank" rel="noreferrer">
+                        <Github size={16} /> Github
                       </a>
                     )}
                   </div>

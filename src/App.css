@@ -706,6 +706,7 @@ body {
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
+  margin-top: .5rem;
 }
 
 .research-link {
