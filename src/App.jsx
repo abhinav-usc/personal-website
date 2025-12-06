@@ -382,6 +382,12 @@ function App() {
 
   const sweProjects = [
     {
+      title: "Grad School Applications Assistant",
+      description: "AI-powered web app to streamline graduate school applications by generating tailored personal statements, editing their materials, getting faculty recommendations, and getting detailed review and feedback on their applications",
+      tech: ["React", "Node.js", "AI Integration"],
+      link: "https://github.com/abhinav-usc/grad-app-assistant"
+    },
+    {
       title: "CampusMate",
       description: "Off-campus housing marketplace connecting college students with rental opportunities and roommates",
       tech: ["React", "AWS", "Full-Stack"],
@@ -398,7 +404,13 @@ function App() {
       description: "Wellness companion app for mindful alcohol consumption tracking with personalized insights and community support",
       tech: ["Mobile Development", "Backend"],
       link: "https://apps.apple.com/by/app/ethos-mindful-consumption/id1622702389"
-    }
+    },
+    {
+      title: "Personal Portfolio Website",
+      description: "Code for this personal portfolio website showcasing my research, projects, and experience",
+      tech: ["React", "Frontend Development"],
+      link: "https://github.com/abhinav-usc/personal-website"
+    },
   ]
 
   // Get all unique tags
