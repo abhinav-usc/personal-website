@@ -50,7 +50,7 @@ function App() {
 
   const researchProjects = [
     {
-      title: "How do phonesthemes evoke sensorimotor experience?",
+      title: "Inferring Sensorimotor Meaning from Sublexical Form: A Computational and Human Study",
       authors: ["Abhinav Gupta", "Jesse Thomason", "Toben H. Mintz"],
       venue: "ACL 2026 (Pending Submission)",
       year: "2026",
@@ -61,7 +61,7 @@ function App() {
       myRole: "I led the human study design where participants rated pseudo-words for 11 different sensory and motor associations. I developed the computational pipeline to analyze correlation patterns between phonestheme structure and sensorimotor ratings, and built models to predict sensorimotor associations from sub-lexical features.",
       impact: "Understanding phonestheme grounding could reveal fundamental principles about how language connects to embodied experience at the sub-lexical level, informing both cognitive theories of language and practical applications in natural language generation.",
       tags: ["NLP", "Grounded Language", "Psycholinguistics"],
-      link: "#",
+      link: "/ARR_Draft.pdf",
       code: "https://github.com/abhinav-usc/SENSE-model",
       hasImage: true,
       hasDemo: false,
@@ -91,9 +91,9 @@ function App() {
     {
       title: "Can LLMs Infer Human Actions and Motives in Strategic Decision Making?",
       authors: ["Kaleen Shrestha", "Harish Dukkipati", "Abhinav Gupta", "Zhonghao Shi", "Maja Mataric"],
-      venue: "In Progress",
-      year: "2025",
-      status: "in-progress",
+      venue: "AAAI 2026 (Under Review)",
+      year: "2026",
+      status: "submitted",
       featured: false,
       description: "Investigating whether large language models can understand and predict human strategic decision-making processes through controlled game-theoretic experiments.",
       fullDescription: "This work examines how well large language models encode human social reasoning and theory of mind in strategic contexts. Using economic games like the Prisoner's Dilemma and other multi-agent scenarios, we investigate whether LLMs can predict human mental models, anticipate cooperative vs. competitive behaviors, and understand the strategic reasoning underlying human decisions in social contexts.",
