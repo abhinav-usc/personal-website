@@ -258,15 +258,10 @@ function App() {
       date: "Jan 2022 – Dec 2024",
       icon: "👨‍🏫",
       description: "Tutored classes including CSCI 270 (Algorithm Design), CSCI 170 (Discrete Mathematics), and CSCI 102 (Intro to C++). Entrusted with grading tests and assignments, helping over 300 students with difficult topics, hosting discussion sections, and contributing to test curation."
-    },
-    {
-      role: "Software Dev Engineering Intern",
-      org: "Amazon Inc.",
-      date: "May 2023 – Aug 2023",
-      icon: "💼",
-      description: "Designed and implemented an internal tool using Java, Python and AWS to automate podcast content management. Engineered automation solutions that eliminated 10 hours of weekly manual tasks and improved content curation. Developed technical documentation and presented project outcomes to cross-functional teams of 6 developers and 2 designers."
     }
   ]
+
+
 
   const leadershipExperience = [
     {
@@ -400,6 +395,11 @@ function App() {
       link: "https://apps.apple.com/us/app/brandshake/id1613614806"
     },
     {
+      title: "Software Dev Engineering Intern, Amazon Inc.",
+      description: "Designed and implemented an internal tool to automate podcast content management. Reduced manual effort by 30% and improved data accuracy through integration with AWS services.",
+      tech: ["Java", "Python", "AWS"],
+    },
+    {
       title: "Ethos",
       description: "Wellness companion app for mindful alcohol consumption tracking with personalized insights and community support",
       tech: ["Mobile Development", "Backend"],
@@ -504,7 +504,7 @@ function App() {
       </section>
 
       {/* Featured Research Section */}
-      <section className="featured-research">
+      {/* <section className="featured-research">
         <div className="container">
           <h2 className="section-title"><Award size={22} /> Featured Research</h2>
           <div className="featured-grid">
@@ -564,15 +564,15 @@ function App() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Research Section */}
       <section id="research" className="research">
         <div className="container">
-          <h2 className="section-title"><Book size={22} /> Research Publications</h2>
+          <h2 className="section-title"><Book size={22} /> Research Work</h2>
           
           {/* Tag Filter */}
-          <div className="tag-filter">
+          {/* <div className="tag-filter">
             <button 
               className={`filter-tag ${selectedTag === null ? 'active' : ''}`}
               onClick={() => setSelectedTag(null)}
@@ -588,7 +588,7 @@ function App() {
                 {tag}
               </button>
             ))}
-          </div>
+          </div> */}
 
           <div className="research-list">
             {filteredProjects.map((paper, index) => (
@@ -684,7 +684,7 @@ function App() {
       </section>
 
       {/* Research Experience Section */}
-      <section className="research-experience">
+      {/* <section className="research-experience">
         <div className="container">
           <h2 className="section-title"><FlaskConical size={22} /> Research Experience</h2>
           <div className="experience-list">
@@ -704,12 +704,12 @@ function App() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Work Experience Section */}
       <section id="experience" className="experience">
         <div className="container">
-          <h2 className="section-title"><Briefcase size={22} /> Teaching & Industry</h2>
+          <h2 className="section-title"><Briefcase size={22} /> Teaching</h2>
           <div className="experience-list">
             {workExperience.map((role, index) => (
               <article key={index} className="experience-item">
