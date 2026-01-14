@@ -50,7 +50,7 @@ function App() {
 
   const researchProjects = [
     {
-      title: "Inferring Sensorimotor Meaning from Sublexical Form: A Computational and Human Study",
+      title: "Words that make SENSE: Sensorimotor Norms in Learned Lexical Token Representations",
       authors: ["Abhinav Gupta", "Jesse Thomason", "Toben H. Mintz"],
       venue: "ACL 2026 (Pending Submission)",
       year: "2026",
