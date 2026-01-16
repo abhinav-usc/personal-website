@@ -52,9 +52,9 @@ function App() {
     {
       title: "Words that make SENSE: Sensorimotor Norms in Learned Lexical Token Representations",
       authors: ["Abhinav Gupta", "Jesse Thomason", "Toben H. Mintz"],
-      venue: "ACL 2026 (Pending Submission)",
+      venue: "ACL 2026 (Under Review)",
       year: "2026",
-      status: "pending-submission",
+      status: "under-review",
       featured: true,
       description: "Investigating whether computational word embeddings capture human-like sensorimotor associations and developing models to project contextual embeddings to sensorimotor experiences.",
       fullDescription: "Phonesthemes are sound-meaning correspondences where certain sounds evoke specific meanings or feelings (like 'gl-' suggesting light/vision in words like glitter, gleam, glow). This research investigates whether these sub-lexical patterns trigger sensorimotor experiences similar to full words. Through computational modeling and human behavioral studies, we explore how these sound patterns are grounded in embodied perception.",
@@ -91,9 +91,9 @@ function App() {
     {
       title: "Can LLMs Infer Human Actions and Motives in Strategic Decision Making?",
       authors: ["Kaleen Shrestha", "Harish Dukkipati", "Abhinav Gupta", "Zhonghao Shi", "Maja Mataric"],
-      venue: "AAAI 2026 (Under Review)",
+      venue: "ACL 2026 (Under Review)",
       year: "2026",
-      status: "submitted",
+      status: "under-review",
       featured: false,
       description: "Investigating whether large language models can understand and predict human strategic decision-making processes through controlled game-theoretic experiments.",
       fullDescription: "This work examines how well large language models encode human social reasoning and theory of mind in strategic contexts. Using economic games like the Prisoner's Dilemma and other multi-agent scenarios, we investigate whether LLMs can predict human mental models, anticipate cooperative vs. competitive behaviors, and understand the strategic reasoning underlying human decisions in social contexts.",
