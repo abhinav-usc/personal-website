@@ -58,9 +58,9 @@ body {
 }
 
 .nav-container {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 0.95rem 1.9rem;
+  padding: 0.95rem 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -106,9 +106,9 @@ body {
 }
 
 .hero-container {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 1.2rem;
 }
 
 .hero-header {
@@ -226,9 +226,9 @@ body {
 
 /* Container */
 .container {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 2.25rem 1.5rem;
+  padding: 2.25rem 1.2rem;
 }
 
 /* Section Titles */
