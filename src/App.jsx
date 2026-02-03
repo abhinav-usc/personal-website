@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Mail, Github, Linkedin, FileText, Book, Briefcase, Code, Award, ExternalLink, FlaskConical, Users, Lightbulb, Laptop, MessageCircle, GithubIcon } from 'lucide-react'
+import { Mail, Github, Linkedin, FileText, Book, Briefcase, Code, Award, ExternalLink, FlaskConical, Users, Lightbulb, Laptop, MessageCircle, GithubIcon, Star } from 'lucide-react'
 import './App.css'
 
 // Custom hook for scroll animations
@@ -52,10 +52,12 @@ function App() {
     {
       title: "Words that make SENSE: Sensorimotor Norms in Learned Lexical Token Representations",
       authors: ["Abhinav Gupta", "Toben H. Mintz", "Jesse Thomason"],
-      venue: "ArXiv",
+      venue: "ArXiv Preprint",
+      arxivId: "2602.00469",
       year: "2026",
       status: "pre-print",
       featured: true,
+      highlighted: true,
       description: "Investigating whether computational word embeddings capture human-like sensorimotor associations and developing models to project contextual embeddings to sensorimotor experiences.",
       fullDescription: "Phonesthemes are sound-meaning correspondences where certain sounds evoke specific meanings or feelings (like 'gl-' suggesting light/vision in words like glitter, gleam, glow). This research investigates whether these sub-lexical patterns trigger sensorimotor experiences similar to full words. Through computational modeling and human behavioral studies, we explore how these sound patterns are grounded in embodied perception.",
       myRole: "I developed the computational pipeline to analyze correlation patterns between phonestheme structure and sensorimotor ratings, and built models to predict sensorimotor associations from sub-lexical features. I also led the human study design where about 300 participants rated pseudo-words for 11 different sensory and motor associations. ",
@@ -63,6 +65,7 @@ function App() {
       tags: ["NLP", "Grounded Language", "Psycholinguistics"],
       link: "https://arxiv.org/abs/2602.00469",
       code: "https://github.com/abhinav-usc/SENSE-model",
+      poster: "", // Add poster URL here if available
       hasImage: true,
       hasDemo: false,
       images: [
@@ -102,6 +105,7 @@ function App() {
       tags: ["LLMs", "Game Theory", "Theory of Mind"],
       link: "/Can_Large_Language_Models_Infer_Human_Actions_and_Motives_in_Strategic_Decision_Making_.pdf",
       code: "",
+      poster: "",
       hasImage: true,
       hasDemo: false,
       images: [
@@ -142,6 +146,7 @@ function App() {
       tags: ["NLP", "Grounded Language", "Computational Linguistics"],
       link: "/Extracting_Sensorimotor_Information_from_Words_and_Emojis.pdf",
       code: "https://github.com/abhinav-usc/SENSE-model",
+      poster: "/socalnlp_2024.pdf",
       hasImage: true,
       hasDemo: true,
       images: [
@@ -158,7 +163,7 @@ function App() {
       ]
     },
     {
-      title: "Indigenous Language Translation with Sparse Data",
+      title: "Endangered Language Preservation with Machine Translation",
       authors: ["Aryan Gulati", "Leslie Moreno", "Aditya Kumar", "Abhinav Gupta"],
       venue: "SoCal NLP Symposium 2023",
       year: "2023",
@@ -172,6 +177,7 @@ function App() {
       tags: ["NLP", "Low-Resource Languages", "Machine Translation"],
       link: "/156_Creating_a_Parallel_Corpus.pdf",
       code: "",
+      poster: "/socalNLP_2023.pdf",
       hasImage: true,
       hasDemo: false,
       images: [
@@ -495,107 +501,27 @@ function App() {
         </div>
       </section>
 
-      {/* Featured Research Section */}
-      {/* <section className="featured-research">
-        <div className="container">
-          <h2 className="section-title"><Award size={22} /> Featured Research</h2>
-          <div className="featured-grid">
-            {featuredResearch.map((paper, index) => (
-              <div key={index} className="featured-card">
-                <div className="featured-content">
-                  <div className="featured-header">
-                    <h3 className="featured-title">{paper.title}</h3>
-                    <span className={`status-badge ${paper.status}`}>
-                      {paper.status === 'pending-submission' ? '📝 Pending Submission' : 
-                       paper.status === 'in-progress' ? '🔬 In Progress' :
-                       '🔄 Under Review'}
-                    </span>
-                  </div>
-                  <p className="featured-authors">{formatAuthors(paper.authors)}</p>
-                  <p className="featured-venue">{paper.venue}</p>
-                  
-                  <div className="featured-description">
-                    <p><strong>Overview:</strong> {paper.fullDescription}</p>
-                    <p><strong>My Role:</strong> {paper.myRole}</p>
-                    <p><strong>Impact:</strong> {paper.impact}</p>
-                  </div>
-
-                  {paper.images && paper.images.length > 0 && (
-                    <ProjectImages images={paper.images} />
-                  )}
-
-                  {paper.hasImage && (!paper.images || paper.images.length === 0) && (
-                    <div className="featured-image-placeholder">
-                      <span>📊 Visualization coming soon</span>
-                    </div>
-                  )}
-
-                  <div className="featured-tags">
-                    {paper.tags.map((tag, i) => (
-                      <span key={i} className="research-tag">{tag}</span>
-                    ))}
-                  </div>
-
-                  <div className="featured-links">
-                    {paper.link !== '#' && (
-                      <a href={paper.link} className="research-link" target="_blank" rel="noreferrer">
-                        <ExternalLink size={14} /> View Paper
-                      </a>
-                    )}
-                    {paper.code !== '' && (
-                      <a href={paper.code} className="research-link" target="_blank" rel="noreferrer">
-                        <Github size={16} /> Github
-                      </a>
-                    )}
-                    {paper.hasDemo && (
-                      <span className="demo-coming-soon">🔧 Interactive demo in development</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section> */}
-
       {/* Research Section */}
       <section id="research" className="research">
         <div className="container">
           <h2 className="section-title"><Book size={22} /> Research Work</h2>
-          
-          {/* Tag Filter */}
-          {/* <div className="tag-filter">
-            <button 
-              className={`filter-tag ${selectedTag === null ? 'active' : ''}`}
-              onClick={() => setSelectedTag(null)}
-            >
-              All
-            </button>
-            {allTags.map((tag, i) => (
-              <button
-                key={i}
-                className={`filter-tag ${selectedTag === tag ? 'active' : ''}`}
-                onClick={() => setSelectedTag(tag === selectedTag ? null : tag)}
-              >
-                {tag}
-              </button>
-            ))}
-          </div> */}
 
           <div className="research-list">
             {filteredProjects.map((paper, index) => (
-              <article key={index} className="research-item">
+              <article key={index} className={`research-item ${paper.highlighted ? 'highlighted-paper' : ''}`}>
                 <div className="research-year">{paper.year}</div>
                 <div className="research-content">
-                  <div 
-                    className="research-header clickable" 
-                    onClick={() => togglePaper(index)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <h3 className="research-title">
-                      {paper.title}
-                      <span className="expand-icon">{expandedPapers[index] ? '−' : '+'}</span>
-                    </h3>
+                  <div className="research-header">
+                    <a 
+                      href={paper.arxivId ? `https://arxiv.org/abs/${paper.arxivId}` : paper.link}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="research-title-link"
+                    >
+                      <h3 className="research-title">
+                        {paper.title}
+                      </h3>
+                    </a>
                     <span className={`status-badge ${paper.status}`}>
                       {paper.status === 'pending-submission' ? '📝 Pending Submission' : 
                        paper.status === 'in-progress' ? '🔬 In Progress' :
@@ -608,6 +534,57 @@ function App() {
                   <p className="research-venue">{paper.venue}</p>
                   <p className="research-description">{paper.description}</p>
                   
+                  
+                  {/* NEW STYLED LINK BADGES */}
+                  <div className="paper-links">
+                    {paper.arxivId && (
+                      <a 
+                        href={`https://arxiv.org/abs/${paper.arxivId}`} 
+                        className="paper-badge arxiv-badge" 
+                        target="_blank" 
+                        rel="noreferrer"
+                      >
+                        arXiv <span className="badge-id">{paper.arxivId}</span>
+                      </a>
+                    )}
+                    {paper.link && !paper.arxivId && (
+                      <a 
+                        href={paper.link} 
+                        className="paper-badge paper-link-badge" 
+                        target="_blank" 
+                        rel="noreferrer"
+                      >
+                        <FileText size={14} /> paper
+                      </a>
+                    )}
+                    {paper.code && (
+                      <a 
+                        href={paper.code} 
+                        className="paper-badge code-badge" 
+                        target="_blank" 
+                        rel="noreferrer"
+                      >
+                        <Github size={14} /> code
+                      </a>
+                    )}
+                    {paper.poster && (
+                      <a 
+                        href={paper.poster} 
+                        className="paper-badge poster-badge" 
+                        target="_blank" 
+                        rel="noreferrer"
+                      >
+                        📊 poster
+                      </a>
+                    )}
+                    <button
+                      className="paper-badge read-more-badge"
+                      onClick={() => togglePaper(index)}
+                    >
+                      {expandedPapers[index] ? '− Read less' : '+ Read more'}
+                    </button>
+                  </div>
+
                   {expandedPapers[index] && (
                     <div className="research-expanded">
                       <div className="expanded-section">
@@ -645,59 +622,12 @@ function App() {
                       )}
                     </div>
                   )}
-
-                  <div className="research-tags">
-                    {paper.tags.map((tag, i) => (
-                      <span 
-                        key={i} 
-                        className={`research-tag ${selectedTag === tag ? 'highlighted' : ''}`}
-                        onClick={() => setSelectedTag(tag === selectedTag ? null : tag)}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="research-links">
-                    {paper.link !== '#' && (
-                      <a href={paper.link} className="research-link" target="_blank" rel="noreferrer">
-                        <ExternalLink size={14} /> Paper
-                      </a>
-                    )}
-                    {paper.code !== '' && (
-                      <a href={paper.code} className="research-link" target="_blank" rel="noreferrer">
-                        <Github size={16} /> Github
-                      </a>
-                    )}
-                  </div>
                 </div>
               </article>
             ))}
           </div>
         </div>
       </section>
-
-      {/* Research Experience Section */}
-      {/* <section className="research-experience">
-        <div className="container">
-          <h2 className="section-title"><FlaskConical size={22} /> Research Experience</h2>
-          <div className="experience-list">
-            {researchExperience.map((role, index) => (
-              <article key={index} className="experience-item">
-                <div className="experience-date">{role.date}</div>
-                <div className="experience-content">
-                  <h3 className="experience-title">
-                    <span className="experience-icon">{role.icon}</span>
-                    {role.role}
-                  </h3>
-                  <p className="experience-org">{role.org}</p>
-                  {role.advisor && <p className="experience-advisor">Advised by {role.advisor}</p>}
-                  <p className="experience-description">{role.description}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section> */}
 
       {/* Work Experience Section */}
       <section id="experience" className="experience">
