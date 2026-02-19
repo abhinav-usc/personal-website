@@ -65,6 +65,7 @@ function App() {
       tags: ["NLP", "Grounded Language", "Psycholinguistics"],
       link: "https://arxiv.org/abs/2602.00469",
       code: "https://github.com/abhinav-usc/SENSE-model",
+      webpage: "/sense",
       poster: "", // Add poster URL here if available
       hasImage: true,
       hasDemo: false,
@@ -575,6 +576,14 @@ function App() {
                         rel="noreferrer"
                       >
                         📊 poster
+                      </a>
+                    )}
+                    {paper.webpage && (
+                      <a 
+                        href={paper.webpage} 
+                        className="paper-badge webpage-badge" 
+                      >
+                        <ExternalLink size={14} /> website
                       </a>
                     )}
                     <button

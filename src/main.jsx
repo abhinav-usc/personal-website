@@ -1,7 +1,9 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
+import Sense from './SENSE.jsx'
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
@@ -27,6 +29,11 @@ const analytics = getAnalytics(app);
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<App />} />
+        <Route path="/sense" element={<Sense />} />
+      </Routes>
+    </BrowserRouter>
   </StrictMode>,
 )
