@@ -111,7 +111,7 @@ function ScoreBar({ label, icon, score, color, delay = 0 }) {
     return () => clearTimeout(t);
   }, [score, delay]);
 
-  const pct = Math.max(0, Math.min(100, ((score ) / 5) * 100));
+  const pct = Math.max(0, Math.min(100, ((score) / 5) * 100));
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
       <span style={{ fontSize: 16, width: 24, textAlign: 'center' }}>{icon}</span>
@@ -187,7 +187,7 @@ function SenseDemo({ handlePredict, modelReady, modelLoading }) {
       // Convert object to array format matching MODALITIES order
       const mapped = MODALITIES.map(m => ({
         modality: m,
-        score: Math.max(0, Math.min(5, scores[m]*5 || 0)),
+        score: Math.max(0, Math.min(5, scores[m] * 5 || 0)),
       }));
       setResults(mapped);
     } catch (err) {
@@ -626,7 +626,7 @@ export default function Sense() {
       try {
         setModelLoading(true);
         const m = new SenseModel();
-        await m.load('/sense_weights.json','/bert-base-encoder/model_quantized.onnx');
+        await m.load('/sense_weights.json', '/bert-base-encoder/model_quantized.onnx');
         if (!cancelled) {
           setModel(m);
           setModelReady(true);
@@ -643,7 +643,10 @@ export default function Sense() {
     init();
     return () => { cancelled = true; };
   }, []);
-
+  useEffect(() => {
+    document.title = 'SENSE';
+    return () => { document.title = 'Abhinav Gupta'; };
+  }, []);
   const handlePredict = useCallback(async (word) => {
     if (!model?.ready) return null;
     const scores = await model.predict(word);
@@ -1091,11 +1094,15 @@ export default function Sense() {
         }}>
           <button
             onClick={() => {
-              const cite = `@article{gupta2026sense,
-  title={Words that make SENSE: Sensorimotor Norms in Learned Lexical Token Representations},
-  author={Gupta, Abhinav and Mintz, Toben H. and Thomason, Jesse},
-  journal={arXiv preprint arXiv:2602.00469},
-  year={2026}
+              const cite = `@inproceedings{gupta:sense,
+  title={Words that make {SENSE}: Sensorimotor
+         Norms in Learned Lexical Token Representations},
+  author={Abhinav Gupta and Toben H. Mintz
+          and Jesse Thomason},
+  booktitle={Findings of Association for Computational
+             Linguistics (ACL Findings)},
+  year={2026},
+  url={https://arxiv.org/abs/2602.00469}
 }`;
               navigator.clipboard?.writeText(cite);
             }}
@@ -1118,13 +1125,15 @@ export default function Sense() {
             lineHeight: 1.6,
             whiteSpace: 'pre-wrap',
             wordBreak: 'break-all',
-          }}>{`@article{gupta2026sense,
-  title={Words that make SENSE: Sensorimotor Norms
-         in Learned Lexical Token Representations},
-  author={Gupta, Abhinav and Mintz, Toben H.
-          and Thomason, Jesse},
-  journal={arXiv preprint arXiv:2602.00469},
-  year={2026}
+          }}>{`@inproceedings{gupta:sense,
+  title={Words that make {SENSE}: Sensorimotor
+         Norms in Learned Lexical Token Representations},
+  author={Abhinav Gupta and Toben H. Mintz
+          and Jesse Thomason},
+  booktitle={Findings of Association for Computational
+             Linguistics (ACL Findings)},
+  year={2026},
+  url={https://arxiv.org/abs/2602.00469}
 }`}</pre>
         </div>
       </Section>

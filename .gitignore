@@ -28,3 +28,5 @@ public/bert-base-encoder/model_quantized.onnx
 public/bert-base-encoder/model.onnx.data
 public/bert-base-encoder/model.onnx
 public/bert-base-encoder/model_quantized.onnx
+public/bert-base-encoder/model.onnx.data
+public/bert-base-encoder/model_quantized.onnx
