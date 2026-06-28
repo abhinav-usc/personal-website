@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Mail, Github, Linkedin, FileText, Book, Briefcase, Code, Award, ExternalLink, FlaskConical, Users, Lightbulb, Laptop, MessageCircle, GithubIcon, Star } from 'lucide-react'
+import { Mail, Github, Linkedin, FileText, Book, Briefcase, Code, Award, ExternalLink, FlaskConical, Users, Lightbulb, Laptop, MessageCircle, GithubIcon, Star, GraduationCap } from 'lucide-react'
 import './App.css'
 
 function usePageLoadAnimation() {
@@ -53,10 +53,9 @@ function App() {
       year: "2026",
       items: [
         { date: "MAY", emoji: "🎓", text: <>Graduating from USC with dual degrees in Computer Science and Cognitive Science, along with a specialization in AI Applications.</> },
-        { date: "APR", emoji: "📝", text: <>Two papers accepted at <strong>ACL 2026 Findings</strong>: <a className="news-link" href="https://arxiv.org/abs/2602.00469" target="_blank" rel="noreferrer">Words that make SENSE</a> and <a className="news-link" href="/Can_Large_Language_Models_Infer_Human_Actions_and_Motives_in_Strategic_Decision_Making_.pdf" target="_blank" rel="noreferrer">Can LLMs Infer Human Actions and Motives in SDM?</a></> },
+        { date: "APR", emoji: "📝", text: <>Two papers accepted at <strong>ACL 2026 Findings</strong>: <a className="news-link" href="https://aclanthology.org/2026.findings-acl.2038/" target="_blank" rel="noreferrer">Words that make SENSE</a> and <a className="news-link" href="https://aclanthology.org/2026.findings-acl.1641/" target="_blank" rel="noreferrer">Can LLMs Infer Human Actions and Motives?</a></> },
         { date: "MAR", emoji: "🏅", text: <>Awarded the <a className="news-link" href="https://libraries.usc.edu/wallofscholars?award=1551" target="_blank" rel="noreferrer">USC Renaissance Scholar Prize</a>, given to 10 undergraduates for excellence across two distinct fields.</> },
         { date: "FEB", emoji: "🏅", text: <>Received the <a className="news-link" href="https://ahf.usc.edu/commencement-honors/scholar-distinctions/discovery-2/" target="_blank" rel="noreferrer">USC Discovery Scholar Distinction</a>.</> },
-        { date: "JAN", emoji: "📄", text: <><a className="news-link" href="https://arxiv.org/abs/2602.00469" target="_blank" rel="noreferrer">Words that make SENSE</a> posted on arXiv.</> },
       ]
     },
     {
@@ -90,31 +89,42 @@ function App() {
     },
   ]
 
+  const allNewsFlat = news.flatMap(group => group.items.map(item => ({ ...item, year: group.year })))
+  const recentNews = allNewsFlat.slice(0, 3)
+
   const researchProjects = [
     {
       title: "Words that make SENSE: Sensorimotor Norms in Learned Lexical Token Representations",
       authors: ["Abhinav Gupta", "Toben H. Mintz", "Jesse Thomason"],
       venue: "Findings of Association for Computational Linguistics (ACL Findings), 2026",
-      arxivId: "2602.00469",
       year: "2026",
       status: "accepted",
-      featured: true,
-      highlighted: true,
       description: "Investigating whether computational word embeddings capture human-like sensorimotor associations and developing models to project contextual embeddings to sensorimotor experiences.",
       fullDescription: "Phonesthemes are sound-meaning correspondences where certain sounds evoke specific meanings or feelings (like 'gl-' suggesting light/vision in words like glitter, gleam, glow). This research investigates whether these sub-lexical patterns trigger sensorimotor experiences similar to full words. Through computational modeling and human behavioral studies, we explore how these sound patterns are grounded in embodied perception.",
       myRole: "I developed the computational pipeline to analyze correlation patterns between phonestheme structure and sensorimotor ratings, and built models to predict sensorimotor associations from sub-lexical features. I also led the human study design where about 300 participants rated pseudo-words for 11 different sensory and motor associations.",
       impact: "Understanding phonestheme grounding could reveal fundamental principles about how language connects to embodied experience at the sub-lexical level, informing both cognitive theories of language and practical applications in natural language generation.",
       tags: ["NLP", "Grounded Language", "Psycholinguistics"],
-      link: "https://arxiv.org/abs/2602.00469",
+      link: "https://aclanthology.org/2026.findings-acl.2038/",
       code: "https://github.com/abhinav-usc/SENSE-model",
       webpage: "/sense",
       poster: "",
-      bibtex: `@inproceedings{gupta:sense,
-  title={Words that make {SENSE}: Sensorimotor Norms in Learned Lexical Token Representations},
-  author={Abhinav Gupta and Toben H. Mintz and Jesse Thomason},
-  booktitle={Findings of Association for Computational Linguistics (ACL Findings)},
-  year={2026},
-  url={https://arxiv.org/abs/2602.00469}
+      bibtex: `@inproceedings{gupta-etal-2026-words,
+    title = "Words that make {SENSE}: Sensorimotor Norms in Learned Lexical Token Representations",
+    author = "Gupta, Abhinav  and
+      Mintz, Toben  and
+      Thomason, Jesse",
+    editor = "Liakata, Maria  and
+      Moreira, Viviane P.  and
+      Zhang, Jiajun  and
+      Jurgens, David",
+    booktitle = "Findings of the {A}ssociation for {C}omputational {L}inguistics: {ACL} 2026",
+    month = jul,
+    year = "2026",
+    address = "San Diego, California, United States",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2026.findings-acl.2038/",
+    pages = "41021--41029",
+    ISBN = "979-8-89176-395-1",
 }`,
       hasImage: true,
       hasDemo: false,
@@ -126,25 +136,38 @@ function App() {
       ]
     },
     {
-      title: "Can LLMs Infer Human Actions and Motives in Strategic Decision Making?",
-      authors: ["Kaleen Shrestha", "Harish Dukkipati", "Abhinav Gupta", "Zhonghao Shi", "Maja Mataric"],
+      title: "Can Large Language Models Infer Human Actions and Motives? Evaluation in Social Prediction and Inspection Games",
+      authors: ["Kaleen Shrestha", "Abhinav Gupta", "Harish Dukkipati", "Zhonghao Shi", "Maja Mataric"],
       venue: "Findings of Association for Computational Linguistics (ACL Findings), 2026",
       year: "2026",
       status: "accepted",
-      featured: false,
       description: "Investigating whether large language models can understand and predict human strategic decision-making processes through controlled game-theoretic experiments.",
       fullDescription: "This work examines how well large language models encode human social reasoning and theory of mind in strategic contexts. Using economic games like the Prisoner's Dilemma and other multi-agent scenarios, we investigate whether LLMs can predict human mental models, anticipate cooperative vs. competitive behaviors, and understand the strategic reasoning underlying human decisions in social contexts.",
       myRole: "As part of a team of 4, I designed experimental protocols for game-theoretic scenarios, implemented LLM evaluation frameworks to test theory of mind capabilities, and analyzed behavioral patterns to compare LLM predictions against actual human decision-making data from strategic games.",
       impact: "Understanding how LLMs encode social reasoning is critical for developing AI systems that can effectively collaborate with humans, predict human needs and intentions, and align with human values in multi-agent settings.",
       tags: ["LLMs", "Game Theory", "Theory of Mind"],
-      link: "/Can_Large_Language_Models_Infer_Human_Actions_and_Motives_in_Strategic_Decision_Making_.pdf",
+      link: "https://aclanthology.org/2026.findings-acl.1641/",
       code: "",
       poster: "",
-      bibtex: `@inproceedings{shrestha:sdm,
-  title={Can LLMs Infer Human Actions and Motives in Strategic Decision Making?},
-  author={Kaleen Shrestha and Harish Dukkipati and Abhinav Gupta and Zhonghao Shi and Maja Matari\\'c},
-  booktitle={Findings of Association for Computational Linguistics (ACL Findings)},
-  year={2026}
+      bibtex: `@inproceedings{shrestha-etal-2026-large,
+    title = "Can Large Language Models Infer Human Actions and Motives? Evaluation in Social Prediction and Inspection Games",
+    author = "Shrestha, Kaleen  and
+      Gupta, Abhinav  and
+      Dukkipati, Harish  and
+      Shi, Zhonghao  and
+      Mataric, Maja",
+    editor = "Liakata, Maria  and
+      Moreira, Viviane P.  and
+      Zhang, Jiajun  and
+      Jurgens, David",
+    booktitle = "Findings of the {A}ssociation for {C}omputational {L}inguistics: {ACL} 2026",
+    month = jul,
+    year = "2026",
+    address = "San Diego, California, United States",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2026.findings-acl.1641/",
+    pages = "32791--32803",
+    ISBN = "979-8-89176-395-1",
 }`,
       hasImage: true,
       hasDemo: false,
@@ -161,7 +184,6 @@ function App() {
       venue: "SoCal NLP Symposium 2024",
       year: "2024",
       status: "presented",
-      featured: false,
       presentedDate: "November 2024",
       description: "Developing computational methods to extract embodied sensory and physical information from textual descriptions, bridging the gap between language and grounded perception.",
       fullDescription: "This work develops computational models to project contextual word embeddings (like BERT) into sensorimotor association spaces derived from human norms. We validate the approach across multiple applications including emoji prediction and content recommendation systems, demonstrating how grounding language in sensorimotor experience improves model performance on tasks requiring embodied understanding.",
@@ -184,7 +206,6 @@ function App() {
       venue: "SoCal NLP Symposium 2023",
       year: "2023",
       status: "presented",
-      featured: false,
       presentedDate: "November 2023",
       description: "Collaborated with Muysc Cubun Research Group to develop NLP-based system for Chibcha language translation. Collected over 30,000 parallel entries from internet sources, old scriptures, and books.",
       fullDescription: "Chibcha (Muisca) is an extinct indigenous Colombian language with extremely limited digital resources. Working with linguists from Universidad Nacional de Colombia, we developed web scraping tools and manual digitization workflows to create a parallel corpus of over 30,000 Chibcha-Spanish sentence pairs from historical texts, religious documents, and academic sources. We then built and evaluated neural machine translation models on this low-resource dataset.",
@@ -204,8 +225,6 @@ function App() {
       ]
     }
   ]
-
-  const featuredResearch = researchProjects.filter(p => p.featured)
 
   const workExperience = [
     { role: "Math Peer Mentor", org: "USC Viterbi MESA University", date: "Aug 2025 - Present", icon: "📚", description: "Mentoring freshmen in introductory calculus courses, providing study techniques and helping with homework problems. Spreading awareness about the program through social media and email outreach, classroom visits, and coordinating with science clubs." },
@@ -232,6 +251,14 @@ function App() {
       </span>
     ))
   }
+
+  const renderNewsItem = (item, key, extraClass = '') => (
+    <div key={key} className={`news-item ${extraClass}`}>
+      <code className="news-date">{item.date}</code>
+      <span className="news-emoji">{item.emoji}</span>
+      <span className="news-text">{item.text}</span>
+    </div>
+  )
 
   return (
     <div className={`portfolio ${isPageLoaded ? 'loaded' : ''}`}>
@@ -261,6 +288,7 @@ function App() {
                 <a href="tel:+12132800780" className="hero-link">📞 (213) 280-0780</a>
                 <a href="https://github.com/abhinav-usc" className="hero-link" target="_blank" rel="noreferrer"><Github size={16} /> GitHub</a>
                 <a href="https://linkedin.com/in/abghinav" className="hero-link" target="_blank" rel="noreferrer"><Linkedin size={16} /> LinkedIn</a>
+                <a href="https://scholar.google.com/citations?user=O0pe3A4AAAAJ" className="hero-link" target="_blank" rel="noreferrer"><GraduationCap size={16} /> Google Scholar</a>
                 <a href={cvLink} className="hero-link" target="_blank" rel="noreferrer"><FileText size={16} /> CV</a>
               </div>
             </div>
@@ -278,18 +306,19 @@ function App() {
         <div className="container">
           <h2 className="section-title">📰 News</h2>
           <div className={`news-scroll ${showAllNews ? 'expanded' : ''}`}>
-            {(showAllNews ? news : news.filter(g => g.year === "2026")).map((group, gi) => (
-              <div key={gi} className="news-year-group">
-                <div className="news-year-label">{group.year}</div>
-                {group.items.map((item, ii) => (
-                  <div key={ii} className="news-item">
-                    <code className="news-date">{item.date}</code>
-                    <span className="news-emoji">{item.emoji}</span>
-                    <span className="news-text">{item.text}</span>
-                  </div>
-                ))}
+            {showAllNews ? (
+              news.map((group, gi) => (
+                <div key={gi} className="news-year-group">
+                  <div className="news-year-label">{group.year}</div>
+                  {group.items.map((item, ii) => renderNewsItem(item, ii))}
+                </div>
+              ))
+            ) : (
+              <div className="news-year-group">
+                <div className="news-year-label">{recentNews[0]?.year}</div>
+                {recentNews.map((item, ii) => renderNewsItem(item, ii, ii >= 2 ? 'news-item-mobile-hide' : ''))}
               </div>
-            ))}
+            )}
           </div>
           <button className="news-toggle" onClick={() => setShowAllNews(!showAllNews)}>
             {showAllNews ? '▲ Show less' : '▼ Show more'}
@@ -302,7 +331,7 @@ function App() {
           <h2 className="section-title"><Book size={22} /> Research Work</h2>
           <div className="research-list">
             {filteredProjects.map((paper, index) => (
-              <article key={index} className={`research-item ${paper.highlighted ? 'highlighted-paper' : ''}`}>
+              <article key={index} className="research-item">
                 <div className="research-year">{paper.year}</div>
                 <div className="research-content">
                   <div className="research-header">
@@ -317,7 +346,7 @@ function App() {
                   <p className="research-authors">{formatAuthors(paper.authors)}</p>
                   <p className="research-venue">{paper.venue}</p>
                   <p className="research-description">{paper.description}</p>
-                  
+
                   <div className="paper-links">
                     {paper.arxivId && (
                       <a href={`https://arxiv.org/abs/${paper.arxivId}`} className="paper-badge arxiv-badge" target="_blank" rel="noreferrer">

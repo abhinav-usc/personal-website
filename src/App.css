@@ -292,17 +292,6 @@ body {
   border-top: 1px solid var(--border);
 }
 
-/* Highlighted Paper Styling */
-.highlighted-paper {
-  position: relative;
-  background: linear-gradient(to right, 
-    rgba(37, 99, 235, 0.02) 20%, 
-    rgba(37, 99, 235, 0.01) 100%);
-  /* border-left: 3px solid var(--primary); */
-  padding-left: 1rem;
-  margin-left: -1rem;
-}
-
 /* Paper Link Badges */
 .paper-links {
   display: flex;
@@ -777,10 +766,10 @@ body {
     font-size: 14px;
   }
   .container {
-    padding: 1.75rem 1.25rem;
+    padding: 1.5rem 1.1rem;
   }
   .hero {
-    padding: 2rem 0 1.25rem;
+    padding: 1.75rem 0 1.25rem;
   }
   .hero-container {
     padding: 0 1.25rem;
@@ -830,26 +819,19 @@ body {
     font-size: 1.25rem;
     margin-bottom: 1.25rem;
   }
-  /* News */
-  .news-item {
-    flex-direction: column;
-    gap: 0.25rem;
-    padding: 0.5rem 0;
-  }
-  .news-date {
-    font-size: 0.75rem;
-  }
-  .news-text {
-    font-size: 0.83rem;
-  }
-  /* News */
+  /* News - icon sits next to the month, text wraps to its own line */
   .news-scroll {
     padding-right: 0;
   }
+  .news-year-group {
+    margin-bottom: 0.75rem;
+  }
   .news-item {
+    flex-direction: row;
     flex-wrap: wrap;
-    gap: 0.35rem;
-    padding: 0.4rem 0;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.3rem 0;
   }
   .news-date {
     font-size: 0.65rem;
@@ -857,25 +839,33 @@ body {
     padding: 0.1rem 0.35rem;
   }
   .news-emoji {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
   }
   .news-text {
     font-size: 0.8rem;
     flex-basis: 100%;
     padding-left: 0;
   }
+  .news-item-mobile-hide {
+    display: none;
+  }
   .news-year-label {
     font-size: 0.75rem;
+    margin-bottom: 0.35rem;
   }
   .news-toggle {
     font-size: 0.75rem;
   }
   /* Research */
+  .research-list,
+  .experience-list {
+    gap: 1rem;
+  }
   .research-item,
   .experience-item {
     flex-direction: column;
-    gap: 0.5rem;
-    padding: 0.75rem 0;
+    gap: 0.4rem;
+    padding: 0.6rem 0;
   }
   .research-year,
   .experience-date {
