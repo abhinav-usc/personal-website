@@ -22,11 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-public/bert-base-encoder/model.onnx.data
+
+# Large unused BERT export artifacts — kept out of git entirely.
+# model_quantized.onnx (used by the SENSE demo) is tracked via Git LFS, see .gitattributes.
 public/bert-base-encoder/model.onnx
-public/bert-base-encoder/model_quantized.onnx
 public/bert-base-encoder/model.onnx.data
-public/bert-base-encoder/model.onnx
-public/bert-base-encoder/model_quantized.onnx
-public/bert-base-encoder/model.onnx.data
-public/bert-base-encoder/model_quantized.onnx
