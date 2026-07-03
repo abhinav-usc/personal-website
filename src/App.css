@@ -15,6 +15,27 @@
   --border: #e5e7eb;
   --success: #10b981;
   --warning: #f59e0b;
+  --nav-bg: rgba(255, 255, 255, 0.95);
+  color-scheme: light;
+}
+[data-theme="dark"] {
+  --primary: #60a5fa;
+  --primary-dark: #93c5fd;
+  --primary-light: #3b82f6;
+  --dark: #f5f5f5;
+  --text: #d4d4d4;
+  --light-gray: #a3a3a3;
+  --bg: #161616;
+  --bg-subtle: #202020;
+  --border: #333333;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --nav-bg: rgba(22, 22, 22, 0.95);
+  color-scheme: dark;
+}
+/* Invert the logo to white in dark mode (targets the img only, not the wrapper) */
+[data-theme="dark"] img.logo {
+  filter: brightness(0) invert(1);
 }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
@@ -37,7 +58,7 @@ body {
 }
 /* Navigation */
 .nav {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--nav-bg);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
   padding: .5rem;
@@ -82,6 +103,24 @@ body {
   color: var(--primary);
   transform: translateY(-1px);
 }
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+  padding: 0.35rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  transition: color 0.2s, border-color 0.2s, transform 0.2s, background 0.2s;
+}
+.theme-toggle:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
 /* Hero Section */
 .hero {
   padding: 2.5rem 0 1.5rem;
@@ -118,10 +157,6 @@ body {
   font-weight: 700;
   margin-bottom: 0.25rem;
   color: var(--dark);
-  background: linear-gradient(135deg, var(--dark) 0%, var(--primary) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 .hero-subtitle {
   font-size: 1rem;

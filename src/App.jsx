@@ -1,11 +1,30 @@
 import { useState, useEffect, useRef } from 'react'
-import { Mail, Github, Linkedin, FileText, Book, Briefcase, Code, Award, ExternalLink, FlaskConical, Users, Lightbulb, Laptop, MessageCircle, GithubIcon, Star, GraduationCap } from 'lucide-react'
+import { Mail, Github, Linkedin, FileText, Book, Briefcase, Code, Award, ExternalLink, FlaskConical, Users, Lightbulb, Laptop, MessageCircle, GithubIcon, Star, GraduationCap, Sun, Moon } from 'lucide-react'
 import './App.css'
 
 function usePageLoadAnimation() {
   const [isLoaded, setIsLoaded] = useState(false)
   useEffect(() => { setIsLoaded(true) }, [])
   return isLoaded
+}
+
+// Theme is initialized before paint by an inline script in index.html (reads
+// localStorage, falls back to the OS `prefers-color-scheme`). This hook just
+// mirrors that attribute into React state and persists the user's toggle.
+function useTheme() {
+  const [theme, setTheme] = useState(() => {
+    if (typeof document === 'undefined') return 'light'
+    return document.documentElement.getAttribute('data-theme') || 'light'
+  })
+  const toggleTheme = () => {
+    setTheme(prev => {
+      const next = prev === 'dark' ? 'light' : 'dark'
+      document.documentElement.setAttribute('data-theme', next)
+      try { localStorage.setItem('theme', next) } catch { /* ignore */ }
+      return next
+    })
+  }
+  return [theme, toggleTheme]
 }
 
 function ProjectImages({ images }) {
@@ -43,6 +62,7 @@ function App() {
   const [expandedPapers, setExpandedPapers] = useState({})
   const [showAllNews, setShowAllNews] = useState(false)
   const isPageLoaded = usePageLoadAnimation()
+  const [theme, toggleTheme] = useTheme()
 
   const togglePaper = (index) => {
     setExpandedPapers(prev => ({ ...prev, [index]: !prev[index] }))
@@ -272,6 +292,14 @@ function App() {
             <a href="#experience"><Briefcase size={16} /> Experience</a>
             <a href="#projects"><Code size={16} /> Projects</a>
             <a href={cvLink} target="_blank" rel="noreferrer"><FileText size={16} /> CV</a>
+            <button
+              className="theme-toggle"
+              onClick={toggleTheme}
+              aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
           </div>
         </div>
       </nav>
@@ -339,10 +367,6 @@ function App() {
                     <a href={paper.arxivId ? `https://arxiv.org/abs/${paper.arxivId}` : paper.link} target="_blank" rel="noreferrer" className="research-title-link">
                       <h3 className="research-title">{paper.title}</h3>
                     </a>
-                    <span className={`status-badge ${paper.status}`}>
-                      {paper.status === 'accepted' ? '✅ Accepted' :
-                       paper.status === 'presented' ? `✓ Presented ${paper.presentedDate}` : ''}
-                    </span>
                   </div>
                   <p className="research-authors">{formatAuthors(paper.authors)}</p>
                   <p className="research-venue">{paper.venue}</p>

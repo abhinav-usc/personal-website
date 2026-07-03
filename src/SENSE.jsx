@@ -659,6 +659,7 @@ export default function Sense() {
       background: T.bg,
       color: T.text,
       overflowX: 'hidden',
+      minHeight: '100vh',
     }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
