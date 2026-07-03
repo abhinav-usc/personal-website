@@ -52,6 +52,7 @@ function App() {
     {
       year: "2026",
       items: [
+        { date: "JUL 2", emoji: "🎤", text: <>At <strong>ACL 2026</strong> in San Diego — presenting the <a className="news-link" href="https://aclanthology.org/2026.findings-acl.2038/" target="_blank" rel="noreferrer">SENSE</a> paper on July 5. Read my <a className="news-link" href="https://amazon-podcasts.notion.site/ACL-2026-39109b5e127b80d88cc0f5124026e63d" target="_blank" rel="noreferrer">conference notes</a>.</> },
         { date: "MAY", emoji: "🎓", text: <>Graduating from USC with dual degrees in Computer Science and Cognitive Science, along with a specialization in AI Applications.</> },
         { date: "APR", emoji: "📝", text: <>Two papers accepted at <strong>ACL 2026 Findings</strong>: <a className="news-link" href="https://aclanthology.org/2026.findings-acl.2038/" target="_blank" rel="noreferrer">Words that make SENSE</a> and <a className="news-link" href="https://aclanthology.org/2026.findings-acl.1641/" target="_blank" rel="noreferrer">Can LLMs Infer Human Actions and Motives?</a></> },
         { date: "MAR", emoji: "🏅", text: <>Awarded the <a className="news-link" href="https://libraries.usc.edu/wallofscholars?award=1551" target="_blank" rel="noreferrer">USC Renaissance Scholar Prize</a>, given to 10 undergraduates for excellence across two distinct fields.</> },
