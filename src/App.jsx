@@ -364,7 +364,7 @@ function App() {
                 <div className="research-year">{paper.year}</div>
                 <div className="research-content">
                   <div className="research-header">
-                    <a href={paper.arxivId ? `https://arxiv.org/abs/${paper.arxivId}` : paper.link} target="_blank" rel="noreferrer" className="research-title-link">
+                    <a href={paper.webpage || (paper.arxivId ? `https://arxiv.org/abs/${paper.arxivId}` : paper.link)} target="_blank" rel="noreferrer" className="research-title-link">
                       <h3 className="research-title">{paper.title}</h3>
                     </a>
                   </div>

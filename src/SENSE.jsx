@@ -654,6 +654,25 @@ export default function Sense() {
     // Returns: { Auditory: 4.82, Gustatory: 1.05, Haptic: 1.51, ... }
   }, [model]);
 
+  const citation = `@inproceedings{gupta-etal-2026-words,
+    title = "Words that make {SENSE}: Sensorimotor Norms in Learned Lexical Token Representations",
+    author = "Gupta, Abhinav  and
+      Mintz, Toben  and
+      Thomason, Jesse",
+    editor = "Liakata, Maria  and
+      Moreira, Viviane P.  and
+      Zhang, Jiajun  and
+      Jurgens, David",
+    booktitle = "Findings of the {A}ssociation for {C}omputational {L}inguistics: {ACL} 2026",
+    month = jul,
+    year = "2026",
+    address = "San Diego, California, United States",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2026.findings-acl.2038/",
+    pages = "41021--41029",
+    ISBN = "979-8-89176-395-1",
+}`;
+
   return (
     <div style={{
       background: T.bg,
@@ -757,7 +776,7 @@ export default function Sense() {
           justifyContent: 'center',
           animation: 'slideUp 0.8s ease-out 0.35s both',
         }}>
-          <a href="https://arxiv.org/abs/2602.00469" target="_blank" rel="noopener noreferrer" style={{
+          <a href="https://aclanthology.org/2026.findings-acl.2038/" target="_blank" rel="noopener noreferrer" style={{
             padding: '10px 24px', borderRadius: 8,
             background: T.highlight,
             color: T.surface, fontSize: 14, fontWeight: 600,
@@ -1095,17 +1114,7 @@ export default function Sense() {
         }}>
           <button
             onClick={() => {
-              const cite = `@inproceedings{gupta:sense,
-  title={Words that make {SENSE}: Sensorimotor
-         Norms in Learned Lexical Token Representations},
-  author={Abhinav Gupta and Toben H. Mintz
-          and Jesse Thomason},
-  booktitle={Findings of Association for Computational
-             Linguistics (ACL Findings)},
-  year={2026},
-  url={https://arxiv.org/abs/2602.00469}
-}`;
-              navigator.clipboard?.writeText(cite);
+              navigator.clipboard?.writeText(citation);
             }}
             style={{
               position: 'absolute', top: 14, right: 14,
@@ -1126,16 +1135,7 @@ export default function Sense() {
             lineHeight: 1.6,
             whiteSpace: 'pre-wrap',
             wordBreak: 'break-all',
-          }}>{`@inproceedings{gupta:sense,
-  title={Words that make {SENSE}: Sensorimotor
-         Norms in Learned Lexical Token Representations},
-  author={Abhinav Gupta and Toben H. Mintz
-          and Jesse Thomason},
-  booktitle={Findings of Association for Computational
-             Linguistics (ACL Findings)},
-  year={2026},
-  url={https://arxiv.org/abs/2602.00469}
-}`}</pre>
+          }}>{citation}</pre>
         </div>
       </Section>
 
