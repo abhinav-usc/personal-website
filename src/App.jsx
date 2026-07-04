@@ -384,7 +384,7 @@ function App() {
               <p className="hero-subtitle">Researcher in NLP & Embodied AI</p>
               <p className="hero-affiliation">M.S. Computer Science, New York University<br />B.S. Computer Science & B.A. Cognitive Science, University of Southern California</p>
               <div className="hero-links">
-                <a href="mailto:abhinavg@usc.edu" className="hero-link"><Mail size={15} /> abhinavg@usc.edu</a>
+                <a href="mailto:abghinav.cs@gmail.com" className="hero-link"><Mail size={15} /> abghinav.cs@gmail.com</a>
                 <a href="tel:+12132800780" className="hero-link"><Phone size={15} /> (213) 280-0780</a>
                 <a href="https://github.com/abhinav-usc" className="hero-link" target="_blank" rel="noreferrer"><Github size={15} /> GitHub</a>
                 <a href="https://linkedin.com/in/abghinav" className="hero-link" target="_blank" rel="noreferrer"><Linkedin size={15} /> LinkedIn</a>
