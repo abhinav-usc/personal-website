@@ -6,13 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Abhinav Gupta</title>
     <script>
-      // Apply the saved (or system-preferred) theme before paint to avoid a flash.
+      // Apply the saved theme before paint to avoid a flash. Defaults to light;
+      // dark is used only when the user has explicitly toggled it before.
       (function () {
         try {
           var stored = localStorage.getItem('theme');
-          var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-          var theme = stored || (prefersDark ? 'dark' : 'light');
-          document.documentElement.setAttribute('data-theme', theme);
+          document.documentElement.setAttribute('data-theme', stored === 'dark' ? 'dark' : 'light');
         } catch (e) {}
       })();
     </script>
