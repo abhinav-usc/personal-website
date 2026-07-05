@@ -1,14 +1,31 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import {
   Star, LogOut, Sun, Moon, CalendarDays, Search, Plus, X, Link as LinkIcon,
   StickyNote, Download, AlertTriangle, Lock, Home, SlidersHorizontal
 } from 'lucide-react'
+import { getApp } from 'firebase/app'
+import {
+  getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut,
+  setPersistence, browserLocalPersistence, browserSessionPersistence,
+} from 'firebase/auth'
+import {
+  getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
+  doc, onSnapshot, setDoc,
+} from 'firebase/firestore'
 import ACL_DATA from './acl_data.json'
 
-// v1 gate: only a salted SHA-256 of the credentials lives in the bundle.
-// v2 will move auth + sync to Firebase (project is already initialized).
-const AUTH_HASH = '799f7ddc4a071642b1ab3c4dfec8ec4ba1816ae74b9fed6f055b0524be4e5ab5'
-const SALT = 'ag-hub-2026'
+// v2: Firebase Auth (sign-in only — the lone account is created in the console,
+// sign-ups are disabled there) + a per-uid Firestore doc for stars/links/notes.
+// The offline cache keeps the hub usable on conference wifi.
+const auth = getAuth(getApp())
+let db
+try {
+  db = initializeFirestore(getApp(), { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) })
+} catch {
+  db = getFirestore(getApp())
+}
+
+// v1 localStorage keys — still read once to seed Firestore on first login.
 const LS_AUTH = 'ag_hub_auth'
 const LS_STARS = 'ag_hub_stars'
 const LS_LINKS = 'ag_hub_links'
@@ -52,23 +69,65 @@ function useTheme() {
   return [theme, toggleTheme]
 }
 
-function useLocalState(key, initial) {
-  const [value, setValue] = useState(() => {
-    try {
-      const raw = localStorage.getItem(key)
-      return raw !== null ? JSON.parse(raw) : initial
-    } catch { return initial }
-  })
-  useEffect(() => {
-    try { localStorage.setItem(key, JSON.stringify(value)) } catch { /* ignore */ }
-  }, [key, value])
-  return [value, setValue]
+function lsGet(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key)
+    return raw !== null ? JSON.parse(raw) : fallback
+  } catch { return fallback }
 }
 
-async function hashCreds(user, pass) {
-  const data = new TextEncoder().encode(`${user}:${pass}:${SALT}`)
-  const buf = await crypto.subtle.digest('SHA-256', data)
-  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('')
+// Live Firestore doc at hub/{uid}: snapshot in, debounced merged writes out.
+// A missing doc (first login) is seeded from v1's localStorage so nothing is lost.
+function useHubData(uid) {
+  const [data, setData] = useState(null)
+  const [syncErr, setSyncErr] = useState('')
+  const pending = useRef({})
+  const timer = useRef(null)
+  const ref = useMemo(() => uid ? doc(db, 'hub', uid) : null, [uid])
+
+  useEffect(() => {
+    if (!ref) return
+    setData(null)
+    const unsub = onSnapshot(ref, snap => {
+      setSyncErr('')
+      // Our own writes echo back instantly; skip them (and anything that lands
+      // mid-edit while a debounced write is still queued) — local state is ahead.
+      if (snap.metadata.hasPendingWrites || timer.current) return
+      if (snap.exists()) {
+        setData(prev => ({ stars: [], links: DEFAULT_LINKS, notes: '', ...prev, ...snap.data() }))
+      } else {
+        const seed = { stars: lsGet(LS_STARS, []), links: lsGet(LS_LINKS, DEFAULT_LINKS), notes: lsGet(LS_NOTES, '') }
+        setDoc(ref, seed).catch(e => setSyncErr(e.code || String(e)))
+        setData(seed)
+      }
+    }, e => setSyncErr(e.code || String(e)))
+    return () => {
+      unsub()
+      clearTimeout(timer.current)
+      timer.current = null
+      if (Object.keys(pending.current).length) {
+        setDoc(ref, pending.current, { merge: true }).catch(() => {})
+        pending.current = {}
+      }
+    }
+  }, [ref])
+
+  const setField = useCallback((key, v) => {
+    setData(prev => {
+      if (!prev) return prev
+      const val = typeof v === 'function' ? v(prev[key]) : v
+      pending.current[key] = val
+      clearTimeout(timer.current)
+      timer.current = setTimeout(() => {
+        timer.current = null
+        setDoc(ref, pending.current, { merge: true }).catch(e => setSyncErr(e.code || String(e)))
+        pending.current = {}
+      }, 500)
+      return { ...prev, [key]: val }
+    })
+  }, [ref])
+
+  return [data, setField, syncErr]
 }
 
 // ── ICS export (Apple Calendar friendly) ─────────────────────
@@ -138,24 +197,28 @@ const fmtDay = day => new Date(day + 'T12:00:00').toLocaleDateString('en-US', { 
 
 const toggle = (setter, v) => setter(prev => prev.includes(v) ? prev.filter(x => x !== v) : [...prev, v])
 
+const NO_STARS = [] // stable fallback while the hub doc is loading
+
 // ── LOGIN ────────────────────────────────────────────────────
-function Login({ onAuthed }) {
-  const [user, setUser] = useState('')
+// Sign-in only — there is deliberately no sign-up path. onAuthStateChanged
+// in Hub picks up the session, so success needs no callback.
+function Login() {
+  const [email, setEmail] = useState('')
   const [pass, setPass] = useState('')
   const [remember, setRemember] = useState(true)
-  const [error, setError] = useState(false)
+  const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
   const submit = async (e) => {
     e?.preventDefault?.()
     setBusy(true)
-    const h = await hashCreds(user.trim(), pass)
-    if (h === AUTH_HASH) {
-      if (remember) { try { localStorage.setItem(LS_AUTH, h) } catch { /* ignore */ } }
-      onAuthed()
-    } else {
-      setError(true)
-      setTimeout(() => setError(false), 1600)
+    try {
+      await setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence)
+      await signInWithEmailAndPassword(auth, email.trim(), pass)
+    } catch (err) {
+      const code = err?.code || ''
+      setError(code.includes('network') ? 'offline?' : code.includes('too-many') ? 'too many tries' : 'nope')
+      setTimeout(() => setError(''), 1800)
     }
     setBusy(false)
   }
@@ -165,18 +228,27 @@ function Login({ onAuthed }) {
       <Lock size={18} className="hub-login-icon" aria-hidden="true" />
       <h1 className="hub-login-title">The Hub</h1>
       <form className={`hub-login-form ${error ? 'error' : ''}`} onSubmit={submit}>
-        <input className="hub-input" placeholder="login" value={user} autoCapitalize="none"
-          onChange={e => setUser(e.target.value)} autoFocus />
+        <input className="hub-input" placeholder="email" type="email" value={email} autoCapitalize="none"
+          onChange={e => setEmail(e.target.value)} autoFocus />
         <input className="hub-input" placeholder="password" type="password" value={pass}
           onChange={e => setPass(e.target.value)} />
         <label className="hub-remember">
           <input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} />
           remember this device
         </label>
-        <button className="hub-primary" type="submit" disabled={busy || !user || !pass}>
-          {error ? 'nope' : 'enter'}
+        <button className="hub-primary" type="submit" disabled={busy || !email || !pass}>
+          {error || 'enter'}
         </button>
       </form>
+    </div>
+  )
+}
+
+function Splash({ label }) {
+  return (
+    <div className="hub-login">
+      <Lock size={18} className="hub-login-icon" aria-hidden="true" />
+      <p className="hub-splash">{label}</p>
     </div>
   )
 }
@@ -217,13 +289,20 @@ function PaperRow({ p, starred, onStar, conflict, dim }) {
 
 // ── MAIN ─────────────────────────────────────────────────────
 export default function Hub() {
-  const [authed, setAuthed] = useState(() => {
-    try { return localStorage.getItem(LS_AUTH) === AUTH_HASH } catch { return false }
-  })
+  const [user, setUser] = useState(undefined) // undefined = auth still resolving
+  useEffect(() => onAuthStateChanged(auth, setUser), [])
+  useEffect(() => {
+    // Drop the dead v1 hash token once the real session exists.
+    if (user) { try { localStorage.removeItem(LS_AUTH) } catch { /* ignore */ } }
+  }, [user])
   const [theme, toggleTheme] = useTheme()
-  const [stars, setStars] = useLocalState(LS_STARS, [])
-  const [links, setLinks] = useLocalState(LS_LINKS, DEFAULT_LINKS)
-  const [notes, setNotes] = useLocalState(LS_NOTES, '')
+  const [data, setField, syncErr] = useHubData(user?.uid)
+  const stars = data?.stars ?? NO_STARS
+  const links = data?.links ?? DEFAULT_LINKS
+  const notes = data?.notes ?? ''
+  const setStars = useCallback(v => setField('stars', v), [setField])
+  const setLinks = useCallback(v => setField('links', v), [setField])
+  const setNotes = useCallback(v => setField('notes', v), [setField])
   const [view, setView] = useState(() => {
     try {
       const v = new URLSearchParams(window.location.search).get('view')
@@ -283,10 +362,7 @@ export default function Hub() {
   const clashKeynotes = useMemo(() => KEYNOTES.filter(k => starredItems.some(s => overlaps(k, s))), [starredItems])
   const keynoteAgenda = useMemo(() => groupByDay(freeKeynotes), [freeKeynotes])
 
-  const logout = () => {
-    try { localStorage.removeItem(LS_AUTH) } catch { /* ignore */ }
-    setAuthed(false)
-  }
+  const logout = () => { signOut(auth) }
 
   const addLink = (e) => {
     e.preventDefault()
@@ -296,8 +372,14 @@ export default function Hub() {
     setNewLink({ title: '', url: '' })
   }
 
-  if (!authed) {
-    return <div className="hub"><style>{HUB_CSS}</style><Login onAuthed={() => setAuthed(true)} /></div>
+  if (user === undefined) {
+    return <div className="hub"><style>{HUB_CSS}</style><Splash label="…" /></div>
+  }
+  if (!user) {
+    return <div className="hub"><style>{HUB_CSS}</style><Login /></div>
+  }
+  if (!data) {
+    return <div className="hub"><style>{HUB_CSS}</style><Splash label={syncErr ? `sync failed: ${syncErr}` : 'syncing…'} /></div>
   }
 
   const todayISO = new Date().toISOString().slice(0, 10)
@@ -311,6 +393,7 @@ export default function Hub() {
           <div>
             <h1 className="hub-title">The Hub</h1>
             <p className="hub-date">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</p>
+            {syncErr && <p className="hub-syncerr"><AlertTriangle size={11} /> sync error — {syncErr}</p>}
           </div>
           <div className="hub-header-actions">
             <a className="theme-toggle" href="/" aria-label="Back to main site" title="Back to main site">
@@ -489,12 +572,12 @@ export default function Hub() {
             onChange={e => setNotes(e.target.value)}
             rows={8}
           />
-          <p className="hub-hint">Saved on this device. Syncs across devices in v2 (Firebase).</p>
+          <p className="hub-hint">Synced to Firestore — edits appear on your other devices.</p>
         </div>
       </section>
 
       <footer className="footer">
-        <p>The Hub · v1 · local-only</p>
+        <p>The Hub · v2 · synced</p>
       </footer>
     </div>
   )
@@ -515,6 +598,11 @@ const HUB_CSS = `
   .hub-login-form.error { animation: hub-shake 0.3s; }
   @keyframes hub-shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
   .hub-remember { display: flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; color: var(--light-gray); }
+  .hub-splash { font-size: 0.85rem; color: var(--light-gray); font-style: italic; }
+  .hub-syncerr {
+    display: inline-flex; align-items: center; gap: 0.3rem; margin-top: 0.2rem;
+    font-family: var(--font-mono); font-size: 0.7rem; color: #b3564f;
+  }
   .hub-input {
     padding: 0.55rem 0.8rem; border: 1px solid var(--border); border-radius: 6px;
     background: var(--bg); color: var(--dark); font-size: 0.9rem; font-family: inherit; outline: none;
