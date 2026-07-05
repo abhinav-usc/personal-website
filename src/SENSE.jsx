@@ -659,7 +659,6 @@ const SENSE_CSS = `
 
   /* Sections */
   .s-section-sub { font-size: 0.9rem; color: var(--light-gray); margin: -0.75rem 0 1.4rem; }
-  .s-prose { max-width: 72ch; }
   .s-prose p { font-size: 0.925rem; line-height: 1.75; margin-bottom: 0.9rem; }
   .s-prose p:last-child { margin-bottom: 0; }
   .s-prose strong { color: var(--dark); }
@@ -672,7 +671,7 @@ const SENSE_CSS = `
   .s-stat { display: flex; flex-direction: column; gap: 0.15rem; }
   .s-stat-value { font-family: var(--font-serif); font-size: 1.65rem; font-weight: 700; color: var(--dark); line-height: 1.1; }
   .s-stat-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--light-gray); }
-  .s-insight { font-family: var(--font-serif); font-size: 0.95rem; line-height: 1.7; max-width: 72ch; }
+  .s-insight { font-family: var(--font-serif); font-size: 0.95rem; line-height: 1.7; }
   .s-insight strong { color: var(--primary); }
 
   /* Demo */
