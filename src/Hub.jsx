@@ -14,9 +14,13 @@ const LS_STARS = 'ag_hub_stars'
 const LS_LINKS = 'ag_hub_links'
 const LS_NOTES = 'ag_hub_notes'
 
-const TAG_LABELS = {
+const PEOPLE_TAGS = {
   mine: 'Mine', lab: 'Lab & friends', faculty: 'Target faculty',
-  usc: 'USC', nyu: 'NYU', topic: 'Topic match',
+  usc: 'USC', nyu: 'NYU',
+}
+const TOPIC_TAGS = {
+  grounding: 'Grounding', multimodal: 'Multimodal', embodied: 'Embodied',
+  cogsci: 'CogSci', humaneval: 'Human eval', social: 'Social',
 }
 const DAYS = [
   { key: '2026-07-05', label: 'Sun 5' },
@@ -201,7 +205,8 @@ export default function Hub() {
   })
   const [query, setQuery] = useState('')
   const [dayFilter, setDayFilter] = useState(null)
-  const [tagFilter, setTagFilter] = useState([])
+  // Default to the people filters — topic categories are opt-in (they're big).
+  const [tagFilter, setTagFilter] = useState(Object.keys(PEOPLE_TAGS))
   const [newLink, setNewLink] = useState({ title: '', url: '' })
 
   useEffect(() => {
@@ -337,7 +342,15 @@ export default function Hub() {
                     </button>
                   ))}
                   <span className="hub-chip-sep" />
-                  {Object.entries(TAG_LABELS).map(([tag, label]) => (
+                  {Object.entries(PEOPLE_TAGS).map(([tag, label]) => (
+                    <button key={tag}
+                      className={`paper-badge hub-chip ${tagFilter.includes(tag) ? 'active' : ''}`}
+                      onClick={() => setTagFilter(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])}>
+                      {label}
+                    </button>
+                  ))}
+                  <span className="hub-chip-sep" />
+                  {Object.entries(TOPIC_TAGS).map(([tag, label]) => (
                     <button key={tag}
                       className={`paper-badge hub-chip ${tagFilter.includes(tag) ? 'active' : ''}`}
                       onClick={() => setTagFilter(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])}>

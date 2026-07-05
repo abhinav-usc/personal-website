@@ -51,7 +51,8 @@
       "Bash(git rm *)",
       "Bash(curl -sL --max-time 120 -o acl2026.xml https://raw.githubusercontent.com/acl-org/acl-anthology/master/data/xml/2026.acl.xml)",
       "Bash(curl -sL --max-time 120 -o findings2026.xml https://raw.githubusercontent.com/acl-org/acl-anthology/master/data/xml/2026.findings.xml)",
-      "Bash(git diff *)"
+      "Bash(git diff *)",
+      "Bash(GIT_SSH_COMMAND='ssh -o BatchMode=yes -o ConnectTimeout=10' git push origin main)"
     ]
   }
 }
