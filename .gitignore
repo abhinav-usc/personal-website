@@ -27,3 +27,7 @@ dist-ssr
 # model_quantized.onnx (used by the SENSE demo) is tracked via Git LFS, see .gitattributes.
 public/bert-base-encoder/model.onnx
 public/bert-base-encoder/model.onnx.data
+
+# ACL conference handbook — local reference only
+ACL26 Digital Conference Handbook.pdf
+*.Handbook.pdf

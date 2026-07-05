@@ -1,8 +1,15 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
   ResponsiveContainer, Tooltip
 } from "recharts";
+import {
+  Ear, Utensils, Hand, HeartPulse, Flower2, Eye, Footprints, Dumbbell,
+  Brain, Speech, Shirt, BookOpen, BarChart3, Type, Calculator, Target,
+  Sparkles, Dices, ClipboardList, TrendingUp, Users, Github, FileSpreadsheet,
+  ArrowLeft, ArrowUpRight, FileText, FlaskConical, Quote, Check, Sun, Moon,
+  Compass, ListOrdered, FolderOpen
+} from "lucide-react";
 import { SenseModel } from './sense_inference.js';
 
 // ─── CONSTANTS ───────────────────────────────────────────────
@@ -17,33 +24,16 @@ const MODALITY_LABELS = {
   Mouth: 'Mouth', Torso: 'Torso'
 };
 const MODALITY_ICONS = {
-  Auditory: '👂', Gustatory: '👅', Haptic: '✋', Interoceptive: '❤️',
-  Olfactory: '👃', Visual: '👁️', Foot_leg: '🦶', Hand_arm: '💪',
-  Head: '🧠', Mouth: '👄', Torso: '🫁'
+  Auditory: Ear, Gustatory: Utensils, Haptic: Hand, Interoceptive: HeartPulse,
+  Olfactory: Flower2, Visual: Eye, Foot_leg: Footprints, Hand_arm: Dumbbell,
+  Head: Brain, Mouth: Speech, Torso: Shirt
 };
-
-// Neutral, muted palette matching abhinavgupta.dev
+// Muted mid-tones that read in both light and dark themes
 const MODALITY_COLORS = {
   Auditory: '#64748b', Gustatory: '#a1887f', Haptic: '#b0906f',
   Interoceptive: '#c47a7a', Olfactory: '#7d9a7e', Visual: '#7b8fa8',
   Foot_leg: '#8b7fa8', Hand_arm: '#b08f6f', Head: '#6a9aa0',
   Mouth: '#a87b8f', Torso: '#8a9a6a'
-};
-
-// Neutral theme tokens
-const T = {
-  bg: '#fafaf9',
-  surface: '#ffffff',
-  surfaceAlt: '#f5f5f4',
-  border: '#e7e5e4',
-  borderSubtle: '#f0eeec',
-  text: '#1c1917',
-  textSecondary: '#57534e',
-  textMuted: '#a8a29e',
-  accent: '#2563eb',
-  accentLight: '#3b82f6',
-  accentSubtle: 'rgba(37, 99, 235, 0.06)',
-  highlight: '#2563eb',
 };
 
 const EXAMPLE_WORDS = [
@@ -62,48 +52,34 @@ const EXAMPLE_WORDS = [
 const PERCEPTUAL = ['Auditory', 'Gustatory', 'Haptic', 'Interoceptive', 'Olfactory', 'Visual'];
 const MOTOR = ['Foot_leg', 'Hand_arm', 'Head', 'Mouth', 'Torso'];
 
-// ─── SECTION COMPONENT ───────────────────────────────────────
-function Section({ children, id, alt = false }) {
-  return (
-    <section id={id} style={{
-      padding: '48px 0',
-      position: 'relative',
-      zIndex: 1,
-      background: alt ? T.surfaceAlt : T.bg,
-      borderTop: alt ? `1px solid ${T.border}` : 'none',
-      borderBottom: alt ? `1px solid ${T.border}` : 'none',
-    }}>
-      <div style={{ maxWidth: 920, margin: '0 auto', padding: '0 24px' }}>
-        {children}
-      </div>
-    </section>
-  );
+const ACL_URL = 'https://aclanthology.org/2026.findings-acl.2038/';
+
+// Chart colors can't use CSS vars (SVG presentation attributes), so pick per theme.
+const CHART_COLORS = {
+  light: { accent: '#34558b', tick: '#6b7280', tickFaint: '#9ca3af', grid: 'rgba(107, 114, 128, 0.25)' },
+  dark: { accent: '#94b8e0', tick: '#a3a3a3', tickFaint: '#8a8a8a', grid: 'rgba(163, 163, 163, 0.25)' },
+};
+
+// Mirrors the main site's theme handling (index.html sets data-theme pre-paint).
+function useTheme() {
+  const [theme, setTheme] = useState(() => {
+    if (typeof document === 'undefined') return 'light'
+    return document.documentElement.getAttribute('data-theme') || 'light'
+  })
+  const toggleTheme = () => {
+    setTheme(prev => {
+      const next = prev === 'dark' ? 'light' : 'dark'
+      document.documentElement.setAttribute('data-theme', next)
+      try { localStorage.setItem('theme', next) } catch { /* ignore */ }
+      return next
+    })
+  }
+  return [theme, toggleTheme]
 }
 
-function SectionTitle({ children, sub }) {
-  return (
-    <div style={{ marginBottom: 24 }}>
-      <h2 style={{
-        fontFamily: "'Source Serif 4', 'Georgia', serif",
-        fontSize: 'clamp(26px, 3.5vw, 36px)',
-        fontWeight: 600,
-        color: T.text,
-        marginBottom: sub ? 10 : 0,
-        letterSpacing: '-0.02em',
-      }}>{children}</h2>
-      {sub && <p style={{
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-        fontSize: 16,
-        color: T.textSecondary,
-        maxWidth: 600,
-        lineHeight: 1.6,
-      }}>{sub}</p>}
-    </div>
-  );
-}
-
-// ─── SCORE BAR VISUALIZATION ─────────────────────────────────
-function ScoreBar({ label, icon, score, color, delay = 0 }) {
+// ─── SCORE BAR ───────────────────────────────────────────────
+// eslint-disable-next-line no-unused-vars -- Icon is used as a JSX element
+function ScoreBar({ label, icon: Icon, score, color, delay = 0 }) {
   const [animated, setAnimated] = useState(false);
   useEffect(() => {
     setAnimated(false);
@@ -111,43 +87,21 @@ function ScoreBar({ label, icon, score, color, delay = 0 }) {
     return () => clearTimeout(t);
   }, [score, delay]);
 
-  const pct = Math.max(0, Math.min(100, ((score) / 5) * 100));
+  const pct = Math.max(0, Math.min(100, (score / 5) * 100));
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-      <span style={{ fontSize: 16, width: 24, textAlign: 'center' }}>{icon}</span>
-      <span style={{
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-        fontSize: 13,
-        color: T.textSecondary,
-        width: 90,
-        flexShrink: 0,
-      }}>{label}</span>
-      <div style={{
-        flex: 1, height: 22, background: T.surfaceAlt,
-        borderRadius: 6, overflow: 'hidden', position: 'relative',
-        border: `1px solid ${T.border}`,
-      }}>
-        <div style={{
-          height: '100%',
-          width: animated ? `${pct}%` : '0%',
-          background: color,
-          borderRadius: 5,
-          transition: 'width 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
-          opacity: 0.7,
-        }} />
-        <span style={{
-          position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
-          fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: 11, fontWeight: 600,
-          color: pct > 75 ? T.surface : T.textSecondary,
-        }}>{score.toFixed(1)}</span>
+    <div className="s-bar-row">
+      <span className="s-bar-icon"><Icon size={14} strokeWidth={1.8} /></span>
+      <span className="s-bar-label">{label}</span>
+      <div className="s-bar-track">
+        <div className="s-bar-fill" style={{ width: animated ? `${pct}%` : '0%', background: color }} />
+        <span className={`s-bar-value ${pct > 75 ? 'on-fill' : ''}`}>{score.toFixed(1)}</span>
       </div>
     </div>
   );
 }
 
 // ─── INTERACTIVE DEMO ────────────────────────────────────────
-function SenseDemo({ handlePredict, modelReady, modelLoading }) {
+function SenseDemo({ handlePredict, modelReady, modelLoading, chart }) {
   const [input, setInput] = useState('');
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -210,170 +164,62 @@ function SenseDemo({ handlePredict, modelReady, modelLoading }) {
 
   return (
     <div>
-      {/* Model loading status */}
       {modelLoading && (
-        <div style={{
-          textAlign: 'center', padding: '12px 16px', borderRadius: 8,
-          background: T.accentSubtle, border: `1px solid rgba(37, 99, 235, 0.15)`,
-          marginBottom: 20, display: 'flex', alignItems: 'center',
-          justifyContent: 'center', gap: 10,
-        }}>
-          <span style={{
-            display: 'inline-block', width: 14, height: 14,
-            border: `2px solid rgba(37, 99, 235, 0.2)`,
-            borderTopColor: T.accent, borderRadius: '50%',
-            animation: 'spin 0.8s linear infinite',
-          }} />
-          <span style={{
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-            fontSize: 13, color: T.accent,
-          }}>Loading BERT model (~60MB, cached after first load)...</span>
-        </div>
+        <p className="s-status"><span className="s-spinner" /> Loading BERT model (~60 MB, cached after first load)…</p>
       )}
       {modelReady && (
-        <div style={{
-          textAlign: 'center', padding: '8px 16px', borderRadius: 8,
-          background: 'rgba(125, 154, 126, 0.08)', border: '1px solid rgba(125, 154, 126, 0.2)',
-          marginBottom: 20,
-        }}>
-          <span style={{
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-            fontSize: 13, color: '#5a7a5b',
-          }}>Model loaded -- running real SENSE inference in your browser</span>
-        </div>
+        <p className="s-status"><Check size={13} /> Model loaded — SENSE inference runs entirely in your browser</p>
       )}
 
-      {/* Input */}
-      <div style={{
-        display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap',
-        justifyContent: 'center',
-      }}>
+      <div className="s-input-row">
         <input
+          className="s-word-input"
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleSubmit()}
-          placeholder="Enter any word, phrase, or nonce word..."
-          style={{
-            flex: '1 1 300px', maxWidth: 420, padding: '12px 18px',
-            borderRadius: 8,
-            border: `1px solid ${T.border}`,
-            background: T.surface,
-            color: T.text,
-            fontSize: 15,
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-            outline: 'none',
-            transition: 'border-color 0.2s',
-          }}
-          onFocus={e => e.target.style.borderColor = T.accent}
-          onBlur={e => e.target.style.borderColor = T.border}
+          placeholder="Enter any word, phrase, or nonce word…"
         />
-        <button
-          onClick={handleSubmit}
-          disabled={loading || !input.trim()}
-          style={{
-            padding: '12px 28px',
-            borderRadius: 8,
-            border: 'none',
-            background: loading ? T.textMuted : T.highlight,
-            color: T.surface,
-            fontSize: 14,
-            fontWeight: 600,
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-            cursor: loading ? 'wait' : 'pointer',
-            transition: 'all 0.2s',
-          }}
-        >
-          {loading ? (
-            <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ display: 'inline-block', width: 14, height: 14, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-              Running...
-            </span>
-          ) : 'Run SENSE'}
+        <button className="s-run" onClick={handleSubmit} disabled={loading || !input.trim()}>
+          {loading ? <><span className="s-spinner light" /> Running…</> : 'Run SENSE'}
         </button>
       </div>
 
-      {/* Example chips */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'center', marginBottom: 20 }}>
-        <span style={{ color: T.textMuted, fontSize: 13, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif", alignSelf: 'center' }}>Try:</span>
+      <div className="s-chips">
+        <span className="s-chips-label">Try:</span>
         {EXAMPLE_WORDS.map(e => (
           <button
             key={e.word}
+            className={`paper-badge s-chip ${activeWord === e.word ? 'active' : ''}`}
             onClick={() => { setInput(e.word); runSENSE(e.word); }}
-            style={{
-              padding: '5px 12px',
-              borderRadius: 6,
-              border: activeWord === e.word ? `1px solid ${T.accent}` : `1px solid ${T.border}`,
-              background: activeWord === e.word ? T.accentSubtle : T.surface,
-              color: activeWord === e.word ? T.text : T.textSecondary,
-              fontSize: 13,
-              fontFamily: "'IBM Plex Mono', monospace",
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-            }}
           >
             {e.word}
           </button>
         ))}
       </div>
 
-      {error && (
-        <div style={{
-          textAlign: 'center', padding: 14, borderRadius: 8,
-          background: 'rgba(196, 122, 122, 0.08)', border: '1px solid rgba(196, 122, 122, 0.2)',
-          color: '#a04040', marginBottom: 24, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-          fontSize: 14,
-        }}>{error}</div>
-      )}
+      {error && <p className="s-error">{error}</p>}
 
-      {/* Results */}
       {results && (
-        <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
-          <div style={{ textAlign: 'center', marginBottom: 16 }}>
-            <span style={{
-              fontFamily: "'Source Serif 4', Georgia, serif",
-              fontSize: 26, fontWeight: 600, color: T.text,
-            }}>"{activeWord}"</span>
-            <span style={{
-              display: 'block', marginTop: 4,
-              fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-              fontSize: 13, color: T.textMuted,
-              textTransform: 'uppercase', letterSpacing: '0.08em',
-            }}>Sensorimotor Profile</span>
+        <div className="s-results-panel">
+          <div className="s-word-header">
+            <span className="s-word">“{activeWord}”</span>
+            <span className="s-word-sub">Sensorimotor profile</span>
           </div>
 
-          {/* Viz mode toggle */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 2, marginBottom: 20, background: T.surfaceAlt, borderRadius: 8, padding: 3, width: 'fit-content', margin: '0 auto 20px' }}>
-            {[
-              { key: 'bars', label: 'Bars' },
-              { key: 'radar', label: 'Radar' },
-            ].map(v => (
+          <div className="s-viz-toggle">
+            {[{ key: 'bars', label: 'Bars' }, { key: 'radar', label: 'Radar' }].map(v => (
               <button
                 key={v.key}
+                className={`s-viz-btn ${vizMode === v.key ? 'active' : ''}`}
                 onClick={() => setVizMode(v.key)}
-                style={{
-                  padding: '7px 18px', borderRadius: 6, border: 'none',
-                  background: vizMode === v.key ? T.surface : 'transparent',
-                  color: vizMode === v.key ? T.text : T.textMuted,
-                  fontSize: 13, fontWeight: vizMode === v.key ? 600 : 400,
-                  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-                  cursor: 'pointer', transition: 'all 0.2s',
-                  boxShadow: vizMode === v.key ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
-                }}
               >{v.label}</button>
             ))}
           </div>
 
           {vizMode === 'bars' && (
-            <div style={{
-              display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
-              gap: 32,
-            }}>
+            <div className="s-bars-grid">
               <div>
-                <h4 style={{
-                  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif", fontSize: 12,
-                  fontWeight: 700, color: T.textMuted, textTransform: 'uppercase',
-                  letterSpacing: '0.1em', marginBottom: 12,
-                }}>Perceptual</h4>
+                <h4 className="subsection-title">Perceptual</h4>
                 {results.filter(r => PERCEPTUAL.includes(r.modality)).map((r, i) => (
                   <ScoreBar
                     key={r.modality}
@@ -386,11 +232,7 @@ function SenseDemo({ handlePredict, modelReady, modelLoading }) {
                 ))}
               </div>
               <div>
-                <h4 style={{
-                  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif", fontSize: 12,
-                  fontWeight: 700, color: T.textMuted, textTransform: 'uppercase',
-                  letterSpacing: '0.1em', marginBottom: 12,
-                }}>Motor</h4>
+                <h4 className="subsection-title">Motor</h4>
                 {results.filter(r => MOTOR.includes(r.modality)).map((r, i) => (
                   <ScoreBar
                     key={r.modality}
@@ -406,219 +248,85 @@ function SenseDemo({ handlePredict, modelReady, modelLoading }) {
           )}
 
           {vizMode === 'radar' && (
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <ResponsiveContainer width="100%" height={400} maxHeight={400}>
+            <div className="s-radar">
+              <ResponsiveContainer width="100%" height={400}>
                 <RadarChart data={radarData} outerRadius="75%">
-                  <PolarGrid stroke="rgba(168, 162, 158, 0.2)" />
+                  <PolarGrid stroke={chart.grid} />
                   <PolarAngleAxis
                     dataKey="dimension"
-                    tick={{ fill: T.textSecondary, fontSize: 11, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif" }}
+                    tick={{ fill: chart.tick, fontSize: 11 }}
                   />
                   <PolarRadiusAxis
                     angle={90} domain={[0, 5]}
-                    tick={{ fill: T.textMuted, fontSize: 10, fontFamily: "'IBM Plex Mono', monospace" }}
+                    tick={{ fill: chart.tickFaint, fontSize: 10 }}
                     axisLine={false}
                   />
                   <Radar
                     name="Score"
                     dataKey="value"
-                    stroke="#2563eb"
-                    fill="#2563eb"
+                    stroke={chart.accent}
+                    fill={chart.accent}
                     fillOpacity={0.12}
                     strokeWidth={2}
                   />
                   <Tooltip
                     contentStyle={{
-                      background: T.surface, border: `1px solid ${T.border}`,
-                      borderRadius: 8, fontFamily: "'IBM Plex Mono', monospace", fontSize: 12,
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                      background: 'var(--bg)', border: '1px solid var(--border)',
+                      borderRadius: 6, fontSize: 12, fontFamily: 'var(--font-mono)',
                     }}
-                    labelStyle={{ color: T.text }}
-                    itemStyle={{ color: T.textSecondary }}
+                    labelStyle={{ color: 'var(--dark)' }}
+                    itemStyle={{ color: 'var(--text)' }}
                   />
                 </RadarChart>
               </ResponsiveContainer>
             </div>
           )}
-
         </div>
       )}
     </div>
   );
 }
 
-// ─── WORKFLOW STEP ─────────────────────────────────────────────
-function WorkflowStep({ number, title, desc, icon, isLast = false }) {
+// ─── WORKFLOW STEP ───────────────────────────────────────────
+// eslint-disable-next-line no-unused-vars -- Icon is used as a JSX element
+function WorkflowStep({ number, title, desc, icon: Icon, isLast = false }) {
   return (
-    <div style={{ display: 'flex', gap: 18, position: 'relative' }}>
-      {!isLast && (
-        <div style={{
-          position: 'absolute', left: 21, top: 48, width: 1, bottom: -24,
-          background: T.border,
-        }} />
-      )}
-      <div style={{
-        width: 44, height: 44, borderRadius: 10, flexShrink: 0,
-        background: T.surfaceAlt,
-        border: `1px solid ${T.border}`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: 20,
-      }}>{icon}</div>
-      <div style={{ paddingBottom: isLast ? 0 : 24 }}>
-        <div style={{
-          fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: 11, color: T.textMuted, fontWeight: 600,
-          letterSpacing: '0.05em', marginBottom: 4,
-        }}>STEP {number}</div>
-        <h4 style={{
-          fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-          fontSize: 16, fontWeight: 600, color: T.text, marginBottom: 4,
-        }}>{title}</h4>
-        <p style={{
-          fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-          fontSize: 14, color: T.textSecondary, lineHeight: 1.6, margin: 0,
-        }}>{desc}</p>
+    <div className={`s-step ${isLast ? 'last' : ''}`}>
+      <span className="s-step-icon"><Icon size={16} strokeWidth={1.8} /></span>
+      <div className="s-step-body">
+        <span className="s-step-num">{String(number).padStart(2, '0')}</span>
+        <h4 className="s-step-title">{title}</h4>
+        <p className="s-step-desc">{desc}</p>
       </div>
     </div>
   );
 }
 
-// ─── STAT CARD ────────────────────────────────────────────────
-function StatCard({ value, label, icon }) {
+// ─── CITATION ────────────────────────────────────────────────
+function CitationBlock({ citation }) {
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    navigator.clipboard?.writeText(citation);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
   return (
-    <div style={{
-      background: T.surface,
-      border: `1px solid ${T.border}`,
-      borderRadius: 12, padding: '18px 16px',
-      textAlign: 'center',
-      transition: 'transform 0.2s, box-shadow 0.2s',
-    }}
-      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.06)'; }}
-      onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
-    >
-      <div style={{ fontSize: 26, marginBottom: 6 }}>{icon}</div>
-      <div style={{
-        fontFamily: "'Source Serif 4', Georgia, serif",
-        fontSize: 32, fontWeight: 700, color: T.text,
-        lineHeight: 1,
-      }}>{value}</div>
-      <div style={{
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-        fontSize: 13, color: T.textMuted, marginTop: 6,
-      }}>{label}</div>
+    <div className="s-bibtex-wrap">
+      <button className="paper-badge s-copy" onClick={copy}>
+        {copied ? <><Check size={12} /> copied</> : <><Quote size={12} /> copy BibTeX</>}
+      </button>
+      <pre className="s-bibtex">{citation}</pre>
     </div>
   );
 }
 
-// ─── RESULT CARD ──────────────────────────────────────────────
-function ResultCard({ title, value, detail, color }) {
-  return (
-    <div style={{
-      background: T.surface,
-      border: `1px solid ${T.border}`,
-      borderRadius: 10, padding: '18px',
-      borderLeft: `3px solid ${color}`,
-    }}>
-      <div style={{
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-        fontSize: 12, color: T.textMuted, marginBottom: 4,
-        textTransform: 'uppercase', letterSpacing: '0.05em',
-      }}>{title}</div>
-      <div style={{
-        fontFamily: "'Source Serif 4', Georgia, serif",
-        fontSize: 24, fontWeight: 700, color: T.text,
-      }}>{value}</div>
-      <div style={{
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-        fontSize: 13, color: T.textSecondary, marginTop: 2,
-      }}>{detail}</div>
-    </div>
-  );
-}
-
-// ─── NAV BAR ──────────────────────────────────────────────────
-function NavBar() {
-  const [scrolled, setScrolled] = useState(false);
-  useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 40);
-    window.addEventListener('scroll', h, { passive: true });
-    return () => window.removeEventListener('scroll', h);
-  }, []);
-
-  const navItems = [
-    { label: 'About', href: '#about' },
-    { label: 'Demo', href: '#demo' },
-    { label: 'Method', href: '#method' },
-    { label: 'Results', href: '#results' },
-    { label: 'Resources', href: '#resources' },
-    { label: 'Citation', href: '#citation' },
-  ];
-
-  return (
-    <nav style={{
-      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-      padding: '10px 24px',
-      background: scrolled ? 'rgba(250, 250, 249, 0.92)' : 'transparent',
-      backdropFilter: scrolled ? 'blur(16px)' : 'none',
-      borderBottom: scrolled ? `1px solid ${T.border}` : 'none',
-      transition: 'all 0.3s',
-      display: 'flex', justifyContent: 'center', gap: 24,
-    }}>
-      <a href="/" style={{
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-        fontSize: 13, color: T.textMuted, alignSelf: 'center',
-        textDecoration: 'none', transition: 'color 0.2s',
-        display: 'flex', alignItems: 'center', gap: 4,
-      }}
-        onMouseEnter={e => e.currentTarget.style.color = T.accent}
-        onMouseLeave={e => e.currentTarget.style.color = T.textMuted}
-      >← abhinavgupta.dev</a>
-      <span style={{
-        fontFamily: "'IBM Plex Mono', monospace",
-        fontSize: 14, fontWeight: 700, color: T.accent,
-        letterSpacing: '0.03em', alignSelf: 'center',
-        marginRight: 'auto',
-      }}>SENSE</span>
-      <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-        {navItems.map(item => (
-          <a
-            key={item.label}
-            href={item.href}
-            style={{
-              padding: '6px 12px', borderRadius: 6,
-              color: T.textSecondary, fontSize: 13, fontWeight: 500,
-              fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-              textDecoration: 'none', transition: 'all 0.2s',
-            }}
-            onMouseEnter={e => { e.target.style.color = T.text; e.target.style.background = T.accentSubtle; }}
-            onMouseLeave={e => { e.target.style.color = T.textSecondary; e.target.style.background = 'transparent'; }}
-          >{item.label}</a>
-        ))}
-      </div>
-      <a
-        href="https://arxiv.org/abs/2602.00469"
-        target="_blank" rel="noopener noreferrer"
-        style={{
-          padding: '6px 14px', borderRadius: 6,
-          border: `1px solid ${T.border}`,
-          color: T.textSecondary, fontSize: 13, fontWeight: 500,
-          fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-          textDecoration: 'none', marginLeft: 'auto',
-          transition: 'all 0.2s',
-        }}
-        onMouseEnter={e => { e.target.style.borderColor = T.accent; e.target.style.color = T.text; }}
-        onMouseLeave={e => { e.target.style.borderColor = T.border; e.target.style.color = T.textSecondary; }}
-      >arXiv Paper</a>
-    </nav>
-  );
-}
-
-// ─── MAIN APP ────────────────────────────────────────────────
+// ─── MAIN PAGE ───────────────────────────────────────────────
 export default function Sense() {
   const [model, setModel] = useState(null);
   const [modelReady, setModelReady] = useState(false);
   const [modelLoading, setModelLoading] = useState(true);
-  const [modelError, setModelError] = useState(null);
+  const [theme, toggleTheme] = useTheme();
+  const chart = CHART_COLORS[theme] || CHART_COLORS.light;
 
   useEffect(() => {
     let cancelled = false;
@@ -635,7 +343,6 @@ export default function Sense() {
       } catch (err) {
         console.error('[SENSE] Model load failed:', err);
         if (!cancelled) {
-          setModelError(err.message);
           setModelLoading(false);
         }
       }
@@ -643,15 +350,16 @@ export default function Sense() {
     init();
     return () => { cancelled = true; };
   }, []);
+
   useEffect(() => {
     document.title = 'SENSE';
     return () => { document.title = 'Abhinav Gupta'; };
   }, []);
+
   const handlePredict = useCallback(async (word) => {
     if (!model?.ready) return null;
     const scores = await model.predict(word);
     return scores;
-    // Returns: { Auditory: 4.82, Gustatory: 1.05, Haptic: 1.51, ... }
   }, [model]);
 
   const citation = `@inproceedings{gupta-etal-2026-words,
@@ -674,509 +382,437 @@ export default function Sense() {
 }`;
 
   return (
-    <div style={{
-      background: T.bg,
-      color: T.text,
-      overflowX: 'hidden',
-      minHeight: '100vh',
-    }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        ::selection { background: rgba(37, 99, 235, 0.15); }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-        a { color: inherit; }
-        input::placeholder { color: ${T.textMuted}; }
-      `}</style>
+    <div className="sense">
+      <style>{SENSE_CSS}</style>
 
-      <NavBar />
+      <nav className="s-nav">
+        <div className="s-nav-inner">
+          <a href="/" className="s-nav-back"><ArrowLeft size={13} /> Abhinav Gupta</a>
+          <span className="s-nav-brand">SENSE</span>
+          <div className="s-nav-links">
+            <a href="#about">About</a>
+            <a href="#demo">Demo</a>
+            <a href="#method">Method</a>
+            <a href="#results">Results</a>
+            <a href="#resources">Resources</a>
+            <a href="#citation">Citation</a>
+          </div>
+          <a href={ACL_URL} target="_blank" rel="noreferrer" className="paper-badge s-nav-paper">
+            <FileText size={12} /> published paper
+          </a>
+          <button
+            className="theme-toggle"
+            onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+          </button>
+        </div>
+      </nav>
 
-      {/* ══════ HERO ══════ */}
-      <header style={{
-        display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center',
-        textAlign: 'center',
-        padding: '100px 24px 56px',
-        position: 'relative', zIndex: 1,
-        borderBottom: `1px solid ${T.border}`,
-      }}>
-        {/* Title */}
-        <h1 style={{
-          fontFamily: "'Source Serif 4', Georgia, serif",
-          fontSize: 'clamp(34px, 5.5vw, 64px)',
-          fontWeight: 700,
-          lineHeight: 1.1,
-          letterSpacing: '-0.03em',
-          maxWidth: 800,
-          marginBottom: 8,
-          color: T.text,
-          animation: 'slideUp 0.8s ease-out',
-        }}>
-          Words that make{' '}
-          <span style={{ fontStyle: 'italic', color: '#2563eb' }}>SENSE</span>
-        </h1>
-
-        {/* Subtitle */}
-        <p style={{
-          fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-          fontSize: 'clamp(15px, 2vw, 19px)',
-          color: T.textSecondary,
-          maxWidth: 600,
-          lineHeight: 1.5,
-          marginBottom: 24,
-          animation: 'slideUp 0.8s ease-out 0.1s both',
-        }}>
-          Sensorimotor Norms in Learned Lexical Token Representations
+      <header className="s-hero">
+        <h1 className="s-title">Words that make <em>SENSE</em></h1>
+        <p className="s-subtitle">Sensorimotor Norms in Learned Lexical Token Representations</p>
+        <p className="s-authors">
+          <a href="https://abhinavgupta.dev">Abhinav Gupta</a> · <a href="https://dornsife.usc.edu/tobenmintz/" target="_blank" rel="noreferrer">Toben H. Mintz</a> · <a href="https://jessethomason.com/" target="_blank" rel="noreferrer">Jesse Thomason</a>
         </p>
-
-        {/* Authors */}
-        <div style={{
-          display: 'flex', flexWrap: 'wrap', gap: 6,
-          justifyContent: 'center', marginBottom: 6,
-          animation: 'slideUp 0.8s ease-out 0.2s both',
-        }}>
-          {[
-            { name: 'Abhinav Gupta', url: 'https://abhinavgupta.dev' },
-            { name: 'Toben H. Mintz', url: 'https://dornsife.usc.edu/tobenmintz/' },
-            { name: 'Jesse Thomason', url: 'https://jessethomason.com/' },
-          ].map((a, i) => (
-            <a
-              key={a.name}
-              href={a.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-                fontSize: 16, fontWeight: 500,
-                color: T.text,
-                textDecoration: 'none',
-                padding: '3px 10px',
-                borderRadius: 6,
-                transition: 'all 0.2s',
-              }}
-              onMouseEnter={e => { e.target.style.background = T.accentSubtle; }}
-              onMouseLeave={e => { e.target.style.background = 'transparent'; }}
-            >
-              {a.name}{i < 2 ? ',' : ''}
-            </a>
-          ))}
+        <p className="s-affiliation">University of Southern California</p>
+        <p className="s-venue">Findings of ACL 2026 · San Diego</p>
+        <div className="s-hero-links">
+          <a href={ACL_URL} target="_blank" rel="noreferrer" className="paper-badge"><FileText size={12} /> published paper</a>
+          <a href="https://github.com/abhinav-usc/SENSE-model" target="_blank" rel="noreferrer" className="paper-badge"><Github size={12} /> code</a>
+          <a href="#demo" className="paper-badge"><FlaskConical size={12} /> live demo</a>
+          <a href="#citation" className="paper-badge"><Quote size={12} /> cite</a>
         </div>
-        <p style={{
-          fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-          fontSize: 14, color: T.textMuted,
-          animation: 'slideUp 0.8s ease-out 0.25s both',
-        }}>University of Southern California</p>
-
-        {/* Buttons */}
-        <div style={{
-          display: 'flex', gap: 10, marginTop: 20, flexWrap: 'wrap',
-          justifyContent: 'center',
-          animation: 'slideUp 0.8s ease-out 0.35s both',
-        }}>
-          <a href="https://aclanthology.org/2026.findings-acl.2038/" target="_blank" rel="noopener noreferrer" style={{
-            padding: '10px 24px', borderRadius: 8,
-            background: T.highlight,
-            color: T.surface, fontSize: 14, fontWeight: 600,
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-            textDecoration: 'none',
-            transition: 'opacity 0.2s',
-          }}
-            onMouseEnter={e => e.target.style.opacity = '0.85'}
-            onMouseLeave={e => e.target.style.opacity = '1'}
-          >Read Paper</a>
-          <a href="https://arxiv.org/pdf/2602.00469" target="_blank" rel="noopener noreferrer" style={{
-            padding: '10px 24px', borderRadius: 8,
-            background: T.surface,
-            border: `1px solid ${T.border}`,
-            color: T.textSecondary, fontSize: 14, fontWeight: 500,
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-            textDecoration: 'none',
-            transition: 'all 0.2s',
-          }}
-            onMouseEnter={e => { e.target.style.borderColor = T.accent; e.target.style.color = T.text; }}
-            onMouseLeave={e => { e.target.style.borderColor = T.border; e.target.style.color = T.textSecondary; }}
-          >PDF</a>
-          <a href="https://github.com/abhinav-usc/SENSE-model" target="_blank" rel="noopener noreferrer" style={{
-            padding: '10px 24px', borderRadius: 8,
-            background: '#24292e',
-            color: '#fff', fontSize: 14, fontWeight: 600,
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-            textDecoration: 'none',
-            transition: 'opacity 0.2s',
-          }}
-            onMouseEnter={e => e.target.style.opacity = '0.85'}
-            onMouseLeave={e => e.target.style.opacity = '1'}
-          >Code</a>
-          <a href="#demo" style={{
-            padding: '10px 24px', borderRadius: 8,
-            background: T.surface,
-            border: `1px solid ${T.border}`,
-            color: T.textSecondary, fontSize: 14, fontWeight: 500,
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-            textDecoration: 'none',
-            transition: 'all 0.2s',
-          }}
-            onMouseEnter={e => { e.target.style.borderColor = T.accent; e.target.style.color = T.text; }}
-            onMouseLeave={e => { e.target.style.borderColor = T.border; e.target.style.color = T.textSecondary; }}
-          >Try Demo</a>
-        </div>
-
       </header>
 
-      {/* ══════ ABOUT ══════ */}
-      <Section id="about">
-        <SectionTitle sub="Bridging distributional semantics and embodied cognition">
-          What is SENSE?
-        </SectionTitle>
-        <div style={{
-          background: T.surface,
-          border: `1px solid ${T.border}`,
-          borderRadius: 12, padding: 'clamp(20px, 3vw, 32px)',
-          marginBottom: 24,
-        }}>
-          <p style={{
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-            fontSize: 16, color: T.textSecondary, lineHeight: 1.75,
-            marginBottom: 16,
-          }}>
-            While word embeddings derive meaning from co-occurrence patterns, human language understanding is grounded in sensory and motor experience. <strong style={{ color: '#2563eb' }}>SENSE</strong> (Sensorimotor Embedding Norm Scoring Engine) is a learned projection model that predicts Lancaster sensorimotor norms from word lexical embeddings.
-          </p>
-          <p style={{
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-            fontSize: 16, color: T.textSecondary, lineHeight: 1.75,
-            marginBottom: 16,
-          }}>
-            We conducted a behavioral study where <strong style={{ color: T.text }}>281 participants</strong> selected which candidate nonce words evoked specific sensorimotor associations, finding statistically significant correlations between human selection rates and SENSE ratings across <strong style={{ color: T.text }}>6 of the 11 modalities</strong>.
-          </p>
-          <p style={{
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-            fontSize: 16, color: T.textSecondary, lineHeight: 1.75,
-          }}>
-            Sublexical analysis of nonce word selection rates revealed systematic <strong style={{ color: '#2563eb' }}>phonesthemic patterns</strong> for the interoceptive norm, suggesting a path towards computationally proposing candidate phonesthemes from text data.
+      <section id="about">
+        <div className="container">
+          <h2 className="section-title"><BookOpen size={17} className="title-icon" aria-hidden="true" /> What is SENSE?</h2>
+          <div className="s-prose">
+            <p>
+              While word embeddings derive meaning from co-occurrence patterns, human language understanding is grounded in sensory and motor experience. <strong className="s-accent">SENSE</strong> (Sensorimotor Embedding Norm Scoring Engine) is a learned projection model that predicts Lancaster sensorimotor norms from word lexical embeddings.
+            </p>
+            <p>
+              We conducted a behavioral study where <strong>281 participants</strong> selected which candidate nonce words evoked specific sensorimotor associations, finding statistically significant correlations between human selection rates and SENSE ratings across <strong>6 of the 11 modalities</strong>.
+            </p>
+            <p>
+              Sublexical analysis of nonce word selection rates revealed systematic <strong className="s-accent">phonesthemic patterns</strong> for the interoceptive norm, suggesting a path towards computationally proposing candidate phonesthemes from text data.
+            </p>
+          </div>
+
+          <div className="s-stats">
+            <div className="s-stat"><span className="s-stat-value">34,110</span><span className="s-stat-label">Words aligned</span></div>
+            <div className="s-stat"><span className="s-stat-value">281</span><span className="s-stat-label">Participants</span></div>
+            <div className="s-stat"><span className="s-stat-value">11</span><span className="s-stat-label">Sensorimotor dimensions</span></div>
+            <div className="s-stat"><span className="s-stat-value">6/11</span><span className="s-stat-label">Significant correlations</span></div>
+          </div>
+
+          <p className="currently-exploring s-insight">
+            <em>“gl-” in glitter, gleam, glow all evoke vision. “sn-” in sniff, sneeze, snore all evoke the nose. These are <strong>phonesthemes</strong> — sublexical units carrying consistent sensorimotor associations across words. SENSE captures these patterns computationally and extends them to novel character sequences.</em>
           </p>
         </div>
+      </section>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 14 }}>
-          <StatCard value="34,110" label="Words Aligned" icon="📚" />
-          <StatCard value="281" label="Human Participants" icon="👥" />
-          <StatCard value="11" label="Sensorimotor Dimensions" icon="🧬" />
-          <StatCard value="6/11" label="Significant Correlations" icon="📊" />
-        </div>
-      </Section>
-
-      {/* ══════ KEY INSIGHT ══════ */}
-      <Section id="insight" alt>
-        <div style={{ textAlign: 'center', maxWidth: 650, margin: '0 auto' }}>
-          <p style={{
-            fontFamily: "'Source Serif 4', Georgia, serif",
-            fontSize: 'clamp(18px, 2.5vw, 24px)',
-            fontWeight: 400,
-            color: T.text,
-            lineHeight: 1.6,
-            fontStyle: 'italic',
-          }}>
-            "gl-" in glitter, gleam, glow all evoke vision. "sn-" in sniff, sneeze, snore all evoke the nose. These are <span style={{ fontWeight: 600, color: '#2563eb' }}>phonesthemes</span> -- sublexical units carrying consistent sensorimotor associations across words.
-          </p>
-          <p style={{
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-            fontSize: 14, color: T.textMuted, marginTop: 14,
-          }}>
-            SENSE captures these patterns computationally and extends them to novel character sequences.
-          </p>
-        </div>
-      </Section>
-
-      {/* ══════ INTERACTIVE DEMO ══════ */}
-      <Section id="demo">
-        <SectionTitle sub="Enter any word, phrase, or made-up character sequence to see its predicted sensorimotor profile across 11 dimensions.">
-          Interactive Demo
-        </SectionTitle>
-        <div style={{
-          background: T.surface,
-          border: `1px solid ${T.border}`,
-          borderRadius: 12,
-          padding: 'clamp(20px, 3vw, 32px)',
-        }}>
+      <section id="demo">
+        <div className="container">
+          <h2 className="section-title"><FlaskConical size={17} className="title-icon" aria-hidden="true" /> Interactive Demo</h2>
+          <p className="s-section-sub">Enter any word, phrase, or made-up character sequence to see its predicted sensorimotor profile across 11 dimensions.</p>
           <SenseDemo
             handlePredict={handlePredict}
             modelReady={modelReady}
             modelLoading={modelLoading}
+            chart={chart}
           />
         </div>
-        <p style={{
-          fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-          fontSize: 12, color: T.textMuted, textAlign: 'center',
-          marginTop: 12,
-        }}>
-          {modelReady
-            ? 'Running real SENSE inference: BERT embeddings projected through trained neural network weights, entirely in your browser.'
-            : 'Demo uses hardcoded examples while the model loads. Once BERT is ready, any word will work.'}
-        </p>
-      </Section>
+      </section>
 
-      {/* ══════ METHOD ══════ */}
-      <Section id="method" alt>
-        <SectionTitle sub="How we built SENSE and validated it with human judgments">
-          Methodology
-        </SectionTitle>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: 28 }}>
-          <div>
-            <h3 style={{
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 12, color: T.textMuted, fontWeight: 600,
-              textTransform: 'uppercase', letterSpacing: '0.1em',
-              marginBottom: 20,
-            }}>SENSE Model Pipeline</h3>
-            <WorkflowStep number={1} icon="🔤" title="Lexical Embedding Extraction"
-              desc="Extract CLS token embeddings from BERT for all 34,110 words aligned across Word2Vec, GloVe, and Lancaster Norms vocabularies." />
-            <WorkflowStep number={2} icon="🧮" title="Architecture Comparison"
-              desc="Compare baseline (mean prediction), linear regression, and feed-forward neural network (64/128 neurons, ReLU, Adam optimizer) architectures." />
-            <WorkflowStep number={3} icon="🎯" title="SENSE Projection"
-              desc="The neural network with BERT CLS embeddings achieves lowest MSE, becoming the SENSE model that projects embeddings onto 11 sensorimotor dimensions." />
-            <WorkflowStep number={4} icon="✨" title="Generalization to Nonce Words"
-              desc="SENSE extends predictions to any character sequence, including pseudowords and nonce forms, via BERT's subword tokenization." isLast />
-          </div>
-          <div>
-            <h3 style={{
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 12, color: T.textMuted, fontWeight: 600,
-              textTransform: 'uppercase', letterSpacing: '0.1em',
-              marginBottom: 20,
-            }}>Behavioral Validation Study</h3>
-            <WorkflowStep number={1} icon="🎲" title="Nonce Word Generation"
-              desc="Generate pronounceable pseudowords using Wuggy, preserving sub-syllabic structure and transition frequencies of real English words." />
-            <WorkflowStep number={2} icon="📝" title="Survey Design"
-              desc="For each sensorimotor dimension, present participants with 20 nonce word pairs and ask which word more strongly evokes the given sensory or motor experience." />
-            <WorkflowStep number={3} icon="👥" title="Data Collection"
-              desc="281 undergraduate participants completed the IRB-approved survey, providing forced-choice judgments on phonesthemic associations." />
-            <WorkflowStep number={4} icon="📈" title="Correlation Analysis"
-              desc="Correlate human selection rates with SENSE predicted scores, finding statistically significant agreement in 6 of 11 modalities." isLast />
+      <section id="method">
+        <div className="container">
+          <h2 className="section-title"><ListOrdered size={17} className="title-icon" aria-hidden="true" /> Methodology</h2>
+          <p className="s-section-sub">How we built SENSE and validated it with human judgments.</p>
+          <div className="s-method-grid">
+            <div>
+              <h3 className="subsection-title">SENSE Model Pipeline</h3>
+              <WorkflowStep number={1} icon={Type} title="Lexical Embedding Extraction"
+                desc="Extract CLS token embeddings from BERT for all 34,110 words aligned across Word2Vec, GloVe, and Lancaster Norms vocabularies." />
+              <WorkflowStep number={2} icon={Calculator} title="Architecture Comparison"
+                desc="Compare baseline (mean prediction), linear regression, and feed-forward neural network (64/128 neurons, ReLU, Adam optimizer) architectures." />
+              <WorkflowStep number={3} icon={Target} title="SENSE Projection"
+                desc="The neural network with BERT CLS embeddings achieves lowest MSE, becoming the SENSE model that projects embeddings onto 11 sensorimotor dimensions." />
+              <WorkflowStep number={4} icon={Sparkles} title="Generalization to Nonce Words"
+                desc="SENSE extends predictions to any character sequence, including pseudowords and nonce forms, via BERT's subword tokenization." isLast />
+            </div>
+            <div>
+              <h3 className="subsection-title">Behavioral Validation Study</h3>
+              <WorkflowStep number={1} icon={Dices} title="Nonce Word Generation"
+                desc="Generate pronounceable pseudowords using Wuggy, preserving sub-syllabic structure and transition frequencies of real English words." />
+              <WorkflowStep number={2} icon={ClipboardList} title="Survey Design"
+                desc="For each sensorimotor dimension, present participants with 20 nonce word pairs and ask which word more strongly evokes the given sensory or motor experience." />
+              <WorkflowStep number={3} icon={Users} title="Data Collection"
+                desc="281 undergraduate participants completed the IRB-approved survey, providing forced-choice judgments on phonesthemic associations." />
+              <WorkflowStep number={4} icon={TrendingUp} title="Correlation Analysis"
+                desc="Correlate human selection rates with SENSE predicted scores, finding statistically significant agreement in 6 of 11 modalities." isLast />
+            </div>
           </div>
         </div>
-      </Section>
+      </section>
 
-      {/* ══════ RESULTS ══════ */}
-      <Section id="results">
-        <SectionTitle sub="SENSE predictions correlate with human sensorimotor judgments">
-          Key Results
-        </SectionTitle>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 14, marginBottom: 20 }}>
-          <ResultCard title="Best Model" value="NN + BERT" detail="Neural network with BERT CLS embeddings" color="#2563eb" />
-          <ResultCard title="Significant Modalities" value="6 / 11" detail="Human-model correlation" color="#7d9a7e" />
-          <ResultCard title="Novel Finding" value="Interoceptive" detail="Phonesthemic patterns discovered" color="#a1887f" />
-          <ResultCard title="Participants" value="281" detail="IRB-approved behavioral study" color="#2563eb" />
+      <section id="results">
+        <div className="container">
+          <h2 className="section-title"><BarChart3 size={17} className="title-icon" aria-hidden="true" /> Key Results</h2>
+          <div className="s-findings">
+            <div className="s-finding"><span className="s-finding-label">Best model</span><span className="s-finding-value">NN + BERT</span><span className="s-finding-detail">Neural network with BERT CLS embeddings</span></div>
+            <div className="s-finding"><span className="s-finding-label">Significant modalities</span><span className="s-finding-value">6 / 11</span><span className="s-finding-detail">Human–model correlation</span></div>
+            <div className="s-finding"><span className="s-finding-label">Novel finding</span><span className="s-finding-value">Interoceptive</span><span className="s-finding-detail">Phonesthemic patterns discovered</span></div>
+            <div className="s-finding"><span className="s-finding-label">Participants</span><span className="s-finding-value">281</span><span className="s-finding-detail">IRB-approved behavioral study</span></div>
+          </div>
+          <div className="s-prose">
+            <h3 className="s-prose-heading">Embedding Comparison</h3>
+            <p>
+              We evaluated three embedding types (Word2Vec, GloVe, BERT CLS) across three architectures. The neural network consistently outperformed linear regression and mean baselines. BERT CLS embeddings were selected for the final SENSE model because they allow embedding of arbitrary character sequences through subword tokenization, enabling predictions for nonce words and novel forms.
+            </p>
+            <h3 className="s-prose-heading">Phonestheme Discovery</h3>
+            <p>
+              Sublexical analysis of nonce word selection rates revealed novel phonesthemic patterns. Most notably, systematic form-meaning associations emerged for the <strong className="s-accent">interoceptive dimension</strong>, a finding not previously reported in phonestheme literature. This demonstrates SENSE's potential as a tool for computationally proposing candidate phonesthemes from distributional text data.
+            </p>
+          </div>
         </div>
+      </section>
 
-        <div style={{
-          background: T.surface,
-          border: `1px solid ${T.border}`,
-          borderRadius: 12, padding: 'clamp(20px, 3vw, 28px)',
-        }}>
-          <h3 style={{
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-            fontSize: 17, fontWeight: 600, color: T.text,
-            marginBottom: 12,
-          }}>Embedding Comparison</h3>
-          <p style={{
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-            fontSize: 15, color: T.textSecondary, lineHeight: 1.7, marginBottom: 20,
-          }}>
-            We evaluated three embedding types (Word2Vec, GloVe, BERT CLS) across three architectures. The neural network consistently outperformed linear regression and mean baselines. BERT CLS embeddings were selected for the final SENSE model because they allow embedding of arbitrary character sequences through subword tokenization, enabling predictions for nonce words and novel forms.
-          </p>
-          <h3 style={{
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-            fontSize: 17, fontWeight: 600, color: T.text,
-            marginBottom: 12,
-          }}>Phonestheme Discovery</h3>
-          <p style={{
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-            fontSize: 15, color: T.textSecondary, lineHeight: 1.7,
-          }}>
-            Sublexical analysis of nonce word selection rates revealed novel phonesthemic patterns. Most notably, systematic form-meaning associations emerged for the <strong style={{ color: '#2563eb' }}>interoceptive dimension</strong>, a finding not previously reported in phonestheme literature. This demonstrates SENSE's potential as a tool for computationally proposing candidate phonesthemes from distributional text data.
-          </p>
+      <section id="dimensions">
+        <div className="container">
+          <h2 className="section-title"><Compass size={17} className="title-icon" aria-hidden="true" /> The 11 Dimensions</h2>
+          <p className="s-section-sub">Lancaster Sensorimotor Norms cover 6 perceptual and 5 motor dimensions.</p>
+          <div className="s-dims">
+            {MODALITIES.map(m => {
+              const ModalityIcon = MODALITY_ICONS[m];
+              return (
+                <div key={m} className="s-dim">
+                  <span className="s-dim-icon" style={{ color: MODALITY_COLORS[m] }}>
+                    <ModalityIcon size={20} strokeWidth={1.7} />
+                  </span>
+                  <span className="s-dim-label">{MODALITY_LABELS[m]}</span>
+                  <span className="s-dim-tag">{PERCEPTUAL.includes(m) ? 'Perceptual' : 'Motor'}</span>
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </Section>
+      </section>
 
-      {/* ══════ DIMENSIONS ══════ */}
-      <Section id="dimensions" alt>
-        <SectionTitle sub="Lancaster Sensorimotor Norms cover 6 perceptual and 5 motor dimensions">
-          The 11 Dimensions
-        </SectionTitle>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10 }}>
-          {MODALITIES.map(m => (
-            <div key={m} style={{
-              background: T.surface,
-              border: `1px solid ${T.border}`,
-              borderRadius: 10, padding: '18px 14px',
-              textAlign: 'center',
-              transition: 'transform 0.2s, box-shadow 0.2s',
-            }}
-              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)'; }}
-              onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
-            >
-              <div style={{ fontSize: 28, marginBottom: 6 }}>{MODALITY_ICONS[m]}</div>
-              <div style={{
-                fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-                fontSize: 13, fontWeight: 600, color: T.text,
-              }}>{MODALITY_LABELS[m]}</div>
-              <div style={{
-                fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 10, color: T.textMuted,
-                marginTop: 3,
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-              }}>{PERCEPTUAL.includes(m) ? 'Perceptual' : 'Motor'}</div>
-            </div>
-          ))}
+      <section id="resources">
+        <div className="container">
+          <h2 className="section-title"><FolderOpen size={17} className="title-icon" aria-hidden="true" /> Resources & Data</h2>
+          <div className="s-res-list">
+            <a href="https://github.com/abhinav-usc/SENSE-model" target="_blank" rel="noreferrer" className="s-res">
+              <span className="s-res-icon"><Github size={16} strokeWidth={1.8} /></span>
+              <span className="s-res-body">
+                <span className="s-res-title">Code</span>
+                <span className="s-res-desc">Model training, evaluation scripts, and SENSE projection pipeline.</span>
+                <span className="s-res-meta">github.com/abhinav-usc/SENSE-model</span>
+              </span>
+              <ArrowUpRight size={14} className="s-res-arrow" aria-hidden="true" />
+            </a>
+            <a href="/Sensorimotor_Associations_Survey_vals.csv" download className="s-res">
+              <span className="s-res-icon"><ClipboardList size={16} strokeWidth={1.8} /></span>
+              <span className="s-res-body">
+                <span className="s-res-title">Survey Responses</span>
+                <span className="s-res-desc">Raw participant responses from the sensorimotor associations behavioral study (281 participants).</span>
+                <span className="s-res-meta">CSV · 353 rows</span>
+              </span>
+              <ArrowUpRight size={14} className="s-res-arrow" aria-hidden="true" />
+            </a>
+            <a href="/final_with_sm.csv" download className="s-res">
+              <span className="s-res-icon"><FileSpreadsheet size={16} strokeWidth={1.8} /></span>
+              <span className="s-res-body">
+                <span className="s-res-title">Processed Results</span>
+                <span className="s-res-desc">Nonce word selection rates with SENSE model ratings and per-modality correlations.</span>
+                <span className="s-res-meta">CSV · 309 rows · includes r and p values</span>
+              </span>
+              <ArrowUpRight size={14} className="s-res-arrow" aria-hidden="true" />
+            </a>
+          </div>
         </div>
-      </Section>
+      </section>
 
-      {/* ══════ RESOURCES & DATA ══════ */}
-      <Section id="resources" alt>
-        <SectionTitle sub="Code, model weights, and human study data">
-          Resources & Data
-        </SectionTitle>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 14 }}>
-          <a href="https://github.com/abhinav-usc/SENSE-model" target="_blank" rel="noopener noreferrer" style={{
-            background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10,
-            padding: '20px', textDecoration: 'none', transition: 'all 0.2s',
-            display: 'block',
-          }}
-            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.06)'; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
-          >
-            <div style={{ fontSize: 22, marginBottom: 8 }}>💻</div>
-            <div style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif", fontSize: 15, fontWeight: 600, color: T.text, marginBottom: 4 }}>
-              Code
-            </div>
-            <div style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif", fontSize: 13, color: T.textSecondary, lineHeight: 1.5 }}>
-              Model training, evaluation scripts, and SENSE projection pipeline.
-            </div>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: T.textMuted, marginTop: 8 }}>
-              github.com/abhinav-usc/SENSE-model
-            </div>
-          </a>
-
-          <a href="/Sensorimotor_Associations_Survey_vals.csv" download style={{
-            background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10,
-            padding: '20px', textDecoration: 'none', transition: 'all 0.2s',
-            display: 'block',
-          }}
-            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.06)'; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
-          >
-            <div style={{ fontSize: 22, marginBottom: 8 }}>📋</div>
-            <div style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif", fontSize: 15, fontWeight: 600, color: T.text, marginBottom: 4 }}>
-              Survey Responses
-            </div>
-            <div style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif", fontSize: 13, color: T.textSecondary, lineHeight: 1.5 }}>
-              Raw participant responses from the sensorimotor associations behavioral study (281 participants).
-            </div>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: T.textMuted, marginTop: 8 }}>
-              CSV &middot; 353 rows
-            </div>
-          </a>
-
-          <a href="/final_with_sm.csv" download style={{
-            background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10,
-            padding: '20px', textDecoration: 'none', transition: 'all 0.2s',
-            display: 'block',
-          }}
-            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.06)'; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
-          >
-            <div style={{ fontSize: 22, marginBottom: 8 }}>📊</div>
-            <div style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif", fontSize: 15, fontWeight: 600, color: T.text, marginBottom: 4 }}>
-              Processed Results
-            </div>
-            <div style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif", fontSize: 13, color: T.textSecondary, lineHeight: 1.5 }}>
-              Nonce word selection rates with SENSE model ratings and per-modality correlations.
-            </div>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: T.textMuted, marginTop: 8 }}>
-              CSV &middot; 309 rows &middot; includes r and p values
-            </div>
-          </a>
+      <section id="citation">
+        <div className="container">
+          <h2 className="section-title"><Quote size={17} className="title-icon" aria-hidden="true" /> Citation</h2>
+          <CitationBlock citation={citation} />
         </div>
-      </Section>
+      </section>
 
-      {/* ══════ CITATION ══════ */}
-      <Section id="citation">
-        <SectionTitle>Citation</SectionTitle>
-        <div style={{
-          background: T.surface,
-          border: `1px solid ${T.border}`,
-          borderRadius: 10, padding: 24,
-          position: 'relative',
-        }}>
-          <button
-            onClick={() => {
-              navigator.clipboard?.writeText(citation);
-            }}
-            style={{
-              position: 'absolute', top: 14, right: 14,
-              padding: '5px 12px', borderRadius: 6,
-              border: `1px solid ${T.border}`,
-              background: T.surfaceAlt,
-              color: T.textSecondary, fontSize: 12, fontWeight: 500,
-              fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-              cursor: 'pointer', transition: 'all 0.2s',
-            }}
-            onMouseEnter={e => { e.target.style.borderColor = T.accent; e.target.style.color = T.text; }}
-            onMouseLeave={e => { e.target.style.borderColor = T.border; e.target.style.color = T.textSecondary; }}
-          >Copy BibTeX</button>
-          <pre style={{
-            fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 13,
-            color: T.textSecondary,
-            lineHeight: 1.6,
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-all',
-          }}>{citation}</pre>
+      <footer className="footer">
+        <div className="s-footer-links">
+          <a href="https://glamor.rocks" target="_blank" rel="noreferrer">GLAMOR Lab</a>
+          <a href="https://dornsife.usc.edu/tobenmintz/" target="_blank" rel="noreferrer">Language Development Lab</a>
+          <a href="https://www.usc.edu" target="_blank" rel="noreferrer">USC</a>
         </div>
-      </Section>
-
-      {/* ══════ FOOTER ══════ */}
-      <footer style={{
-        padding: '28px 24px',
-        textAlign: 'center',
-        borderTop: `1px solid ${T.border}`,
-        position: 'relative', zIndex: 1,
-        background: T.surfaceAlt,
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 12, flexWrap: 'wrap' }}>
-          <a href="https://glamor.rocks" target="_blank" rel="noopener noreferrer" style={{
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif", fontSize: 13, color: T.textMuted,
-            textDecoration: 'none', transition: 'color 0.2s',
-          }}
-            onMouseEnter={e => e.target.style.color = T.text}
-            onMouseLeave={e => e.target.style.color = T.textMuted}
-          >GLAMOR Lab</a>
-          <a href="https://dornsife.usc.edu/tobenmintz/" target="_blank" rel="noopener noreferrer" style={{
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif", fontSize: 13, color: T.textMuted,
-            textDecoration: 'none', transition: 'color 0.2s',
-          }}
-            onMouseEnter={e => e.target.style.color = T.text}
-            onMouseLeave={e => e.target.style.color = T.textMuted}
-          >Language Development Lab</a>
-          <a href="https://www.usc.edu" target="_blank" rel="noopener noreferrer" style={{
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif", fontSize: 13, color: T.textMuted,
-            textDecoration: 'none', transition: 'color 0.2s',
-          }}
-            onMouseEnter={e => e.target.style.color = T.text}
-            onMouseLeave={e => e.target.style.color = T.textMuted}
-          >USC</a>
-        </div>
-        <p style={{
-          fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif",
-          fontSize: 12, color: T.textMuted,
-        }}>
-          Gupta, Mintz, & Thomason. 2026.
-        </p>
+        <p>Gupta, Mintz & Thomason · Findings of ACL 2026</p>
       </footer>
     </div>
   );
 }
+
+// Scoped styles; reuses the main site's CSS variables and utility classes
+// (.container, .section-title, .subsection-title, .paper-badge, .theme-toggle,
+// .currently-exploring, .footer), so light/dark theming comes along for free.
+const SENSE_CSS = `
+  .sense { min-height: 100vh; background: var(--bg); color: var(--text); }
+  .sense .container { max-width: 940px; }
+  html { scroll-behavior: smooth; }
+  @keyframes s-spin { to { transform: rotate(360deg); } }
+  @keyframes s-fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Nav */
+  .s-nav {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--nav-bg);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .s-nav-inner {
+    max-width: 940px; margin: 0 auto; padding: 0.7rem 1.2rem;
+    display: flex; align-items: center; gap: 1rem;
+  }
+  .s-nav-back {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    font-size: 0.82rem; color: var(--light-gray); text-decoration: none;
+    transition: color 0.2s; white-space: nowrap;
+  }
+  .s-nav-back:hover { color: var(--primary); }
+  .s-nav-brand {
+    font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700;
+    color: var(--primary); letter-spacing: 0.05em;
+  }
+  .s-nav-links { display: flex; gap: 0.9rem; margin-left: auto; }
+  .s-nav-links a {
+    font-size: 0.82rem; font-weight: 500; color: var(--text);
+    text-decoration: none; transition: color 0.2s;
+  }
+  .s-nav-links a:hover { color: var(--primary); }
+  .s-nav-paper { white-space: nowrap; }
+
+  /* Hero */
+  .s-hero {
+    max-width: 780px; margin: 0 auto; padding: 3.5rem 1.2rem 2.5rem;
+    text-align: center; animation: s-fade 0.6s ease-out;
+  }
+  .s-title {
+    font-family: var(--font-serif); font-size: clamp(1.9rem, 5vw, 3rem);
+    font-weight: 700; letter-spacing: -0.02em; line-height: 1.15;
+    color: var(--dark); margin-bottom: 0.6rem;
+  }
+  .s-title em { font-style: italic; color: var(--primary); }
+  .s-subtitle {
+    font-family: var(--font-serif); font-style: italic;
+    font-size: clamp(0.95rem, 2.2vw, 1.15rem); color: var(--light-gray);
+    margin-bottom: 1.1rem;
+  }
+  .s-authors { font-size: 0.9rem; margin-bottom: 0.25rem; }
+  .s-authors a { color: var(--primary); font-weight: 500; text-decoration: none; }
+  .s-authors a:hover { color: var(--primary-dark); }
+  .s-affiliation { font-size: 0.85rem; color: var(--text); margin-bottom: 0.15rem; }
+  .s-venue { font-family: var(--font-serif); font-style: italic; font-size: 0.85rem; color: var(--light-gray); margin-bottom: 1.25rem; }
+  .s-hero-links { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+
+  /* Sections */
+  .s-section-sub { font-size: 0.9rem; color: var(--light-gray); margin: -0.75rem 0 1.4rem; }
+  .s-prose { max-width: 72ch; }
+  .s-prose p { font-size: 0.925rem; line-height: 1.75; margin-bottom: 0.9rem; }
+  .s-prose p:last-child { margin-bottom: 0; }
+  .s-prose strong { color: var(--dark); }
+  .s-prose strong.s-accent, .s-accent { color: var(--primary); }
+  .s-prose-heading { font-size: 0.95rem; font-weight: 600; color: var(--dark); margin: 1.4rem 0 0.5rem; }
+  .s-prose-heading:first-child { margin-top: 0; }
+
+  /* Stats */
+  .s-stats { display: flex; flex-wrap: wrap; gap: 2.75rem; margin: 1.75rem 0; }
+  .s-stat { display: flex; flex-direction: column; gap: 0.15rem; }
+  .s-stat-value { font-family: var(--font-serif); font-size: 1.65rem; font-weight: 700; color: var(--dark); line-height: 1.1; }
+  .s-stat-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--light-gray); }
+  .s-insight { font-family: var(--font-serif); font-size: 0.95rem; line-height: 1.7; max-width: 72ch; }
+  .s-insight strong { color: var(--primary); }
+
+  /* Demo */
+  .s-status {
+    display: flex; align-items: center; justify-content: center; gap: 0.45rem;
+    font-size: 0.8rem; color: var(--light-gray); margin-bottom: 1.1rem;
+  }
+  .s-spinner {
+    display: inline-block; width: 12px; height: 12px; flex-shrink: 0;
+    border: 2px solid var(--border); border-top-color: var(--primary);
+    border-radius: 50%; animation: s-spin 0.8s linear infinite;
+  }
+  .s-spinner.light { border-color: rgba(255,255,255,0.35); border-top-color: #fff; }
+  .s-input-row { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; margin-bottom: 0.9rem; }
+  .s-word-input {
+    flex: 1 1 240px; max-width: 420px; padding: 0.6rem 0.9rem;
+    border: 1px solid var(--border); border-radius: 6px;
+    background: var(--bg); color: var(--dark);
+    font-size: 0.9rem; font-family: inherit; outline: none;
+    transition: border-color 0.2s;
+  }
+  .s-word-input:focus { border-color: var(--primary); }
+  .s-word-input::placeholder { color: var(--light-gray); }
+  .s-run {
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    padding: 0.6rem 1.3rem; border: none; border-radius: 6px;
+    background: var(--primary); color: var(--bg);
+    font-size: 0.85rem; font-weight: 600; font-family: inherit;
+    cursor: pointer; transition: opacity 0.2s;
+  }
+  .s-run:hover { opacity: 0.9; }
+  .s-run:disabled { opacity: 0.5; cursor: default; }
+  .s-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; align-items: center; margin-bottom: 1.4rem; }
+  .s-chips-label { font-size: 0.8rem; color: var(--light-gray); margin-right: 0.2rem; }
+  .s-chip { font-family: var(--font-mono); font-size: 0.72rem; }
+  .s-chip.active { color: var(--primary); border-color: var(--primary); background: var(--bg-subtle); }
+  .s-error { text-align: center; font-size: 0.85rem; color: #b3564f; margin-bottom: 1.25rem; }
+
+  .s-results-panel { animation: s-fade 0.4s ease-out; }
+  .s-word-header { text-align: center; margin-bottom: 0.9rem; }
+  .s-word { font-family: var(--font-serif); font-size: 1.5rem; font-weight: 600; color: var(--dark); display: block; }
+  .s-word-sub { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--light-gray); }
+  .s-viz-toggle { display: flex; justify-content: center; gap: 0.75rem; margin-bottom: 1.4rem; }
+  .s-viz-btn {
+    background: none; border: none; padding: 0.25rem 0.2rem;
+    font-size: 0.82rem; font-weight: 500; font-family: inherit;
+    color: var(--light-gray); cursor: pointer;
+    border-bottom: 1px solid transparent; transition: color 0.2s, border-color 0.2s;
+  }
+  .s-viz-btn:hover { color: var(--primary); }
+  .s-viz-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+  .s-bars-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); gap: 1rem 2.5rem; }
+  .s-bar-row { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
+  .s-bar-icon { width: 22px; display: flex; justify-content: center; color: var(--light-gray); flex-shrink: 0; }
+  .s-bar-label { font-size: 0.8rem; color: var(--text); width: 88px; flex-shrink: 0; }
+  .s-bar-track {
+    flex: 1; height: 20px; position: relative; overflow: hidden;
+    background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 4px;
+  }
+  .s-bar-fill { height: 100%; border-radius: 3px; opacity: 0.7; transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+  .s-bar-value {
+    position: absolute; right: 7px; top: 50%; transform: translateY(-50%);
+    font-family: var(--font-mono); font-size: 0.68rem; font-weight: 600; color: var(--text);
+  }
+  .s-bar-value.on-fill { color: var(--bg); }
+  .s-radar { display: flex; justify-content: center; }
+
+  /* Method */
+  .s-method-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr)); gap: 1.5rem 3rem; }
+  .s-step { display: flex; gap: 0.85rem; position: relative; padding-bottom: 1.35rem; }
+  .s-step.last { padding-bottom: 0; }
+  .s-step-icon { width: 28px; display: flex; justify-content: center; color: var(--light-gray); flex-shrink: 0; padding-top: 0.1rem; }
+  .s-step:not(.last)::before {
+    content: ''; position: absolute; left: 14px; top: 26px; bottom: 4px;
+    width: 1px; background: var(--border);
+  }
+  .s-step-num { font-family: var(--font-mono); font-size: 0.68rem; color: var(--light-gray); letter-spacing: 0.08em; display: block; margin-bottom: 0.1rem; }
+  .s-step-title { font-size: 0.9rem; font-weight: 600; color: var(--dark); margin-bottom: 0.2rem; }
+  .s-step-desc { font-size: 0.85rem; line-height: 1.6; color: var(--text); }
+
+  /* Results */
+  .s-findings {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+    gap: 1.4rem 2rem; margin-bottom: 1.9rem;
+  }
+  .s-finding { display: flex; flex-direction: column; gap: 0.15rem; }
+  .s-finding-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--light-gray); }
+  .s-finding-value { font-family: var(--font-serif); font-size: 1.3rem; font-weight: 700; color: var(--dark); }
+  .s-finding-detail { font-size: 0.8rem; color: var(--light-gray); }
+
+  /* Dimensions */
+  .s-dims { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(118px, 100%), 1fr)); gap: 1.25rem 1rem; }
+  .s-dim { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; text-align: center; }
+  .s-dim-label { font-size: 0.82rem; font-weight: 600; color: var(--dark); }
+  .s-dim-tag { font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--light-gray); }
+
+  /* Resources */
+  .s-res-list { display: flex; flex-direction: column; }
+  .s-res {
+    display: flex; align-items: flex-start; gap: 0.9rem;
+    padding: 1rem 0; text-decoration: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .s-res:last-child { border-bottom: none; }
+  .s-res-icon { color: var(--light-gray); padding-top: 0.15rem; flex-shrink: 0; }
+  .s-res-body { display: flex; flex-direction: column; gap: 0.15rem; flex: 1; }
+  .s-res-title { font-size: 0.9rem; font-weight: 600; color: var(--dark); }
+  .s-res-desc { font-size: 0.85rem; color: var(--text); line-height: 1.55; }
+  .s-res-meta { font-family: var(--font-mono); font-size: 0.7rem; color: var(--light-gray); margin-top: 0.15rem; }
+  .s-res-arrow { color: var(--primary); opacity: 0; transform: translate(-3px, 3px); transition: opacity 0.2s, transform 0.2s; align-self: center; flex-shrink: 0; }
+  .s-res:hover .s-res-arrow { opacity: 1; transform: translate(0, 0); }
+
+  /* Citation */
+  .s-bibtex-wrap { position: relative; }
+  .s-copy { position: absolute; top: 0.8rem; right: 0.8rem; }
+  .s-bibtex {
+    background: var(--bg-subtle); border-radius: 6px;
+    padding: 1.25rem; padding-right: 7.5rem;
+    font-family: var(--font-mono); font-size: 0.78rem; line-height: 1.6;
+    color: var(--text); white-space: pre-wrap; word-break: break-word;
+  }
+  .s-footer-links { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+  .s-footer-links a { font-size: 0.8rem; color: var(--light-gray); text-decoration: none; transition: color 0.2s; }
+  .s-footer-links a:hover { color: var(--primary); }
+
+  /* Phone */
+  @media (max-width: 820px) {
+    .s-nav-links { display: none; }
+  }
+  @media (max-width: 560px) {
+    .s-nav-inner { padding: 0.6rem 1rem; gap: 0.7rem; }
+    .s-nav-paper { margin-left: auto; }
+    .s-hero { padding: 2.25rem 1rem 1.75rem; }
+    .sense .container { padding: 1.5rem 1rem; }
+    .s-stats { gap: 1.5rem 2rem; margin: 1.4rem 0; }
+    .s-stat-value { font-size: 1.35rem; }
+    .s-prose p, .s-step-desc, .s-res-desc { font-size: 0.85rem; }
+    .s-dims { grid-template-columns: repeat(3, 1fr); }
+    .s-bibtex { padding: 1rem; padding-top: 3rem; font-size: 0.7rem; }
+    .s-copy { top: 0.7rem; right: 0.7rem; }
+    .s-bar-label { width: 76px; font-size: 0.75rem; }
+  }
+`;

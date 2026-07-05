@@ -234,21 +234,13 @@ body {
   margin: 0 auto;
   padding: 2.25rem 1.2rem;
 }
-/* Section titles: serif heading with a hairline rule underneath (~80% wide) */
+/* Section titles: quiet serif headings, no rules — whitespace does the separating */
 .section-title {
   font-family: var(--font-serif);
-  font-size: 1.3rem;
+  font-size: 1.35rem;
   font-weight: 600;
   margin-bottom: 1.4rem;
   color: var(--dark);
-}
-.section-title::after {
-  content: '';
-  display: block;
-  width: 82%;
-  height: 1px;
-  background: var(--border);
-  margin-top: 0.5rem;
 }
 .title-icon {
   color: var(--light-gray);
@@ -312,8 +304,16 @@ body {
   color: var(--light-gray);
   letter-spacing: 0.1em;
   margin-bottom: 0.5rem;
-  padding-bottom: 0.3rem;
-  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.news-year-label::before {
+  content: '';
+  width: 1.1rem;
+  height: 1px;
+  background: var(--light-gray);
+  opacity: 0.55;
 }
 .news-item {
   display: flex;

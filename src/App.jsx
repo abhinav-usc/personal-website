@@ -394,7 +394,7 @@ function App() {
             </div>
           </div>
           <div className="hero-bio">
-            <p>I'm a master's student in Computer Science at New York University, concentrating in Artificial Intelligence. I received my B.S. in Computer Science and B.A. in Cognitive Science from the University of Southern California with a specialization in Applications of Artificial Intelligence. I work on the development, analysis and applications of language models rooted in human cognition and understanding — my research interests include Natural Language Processing, AI for Understanding Human Thought, Cognitive Science, and Human-Computer Interaction.</p>
+            <p>I'm a master's student in Computer Science at New York University, concentrating in Artificial Intelligence. I received my B.S. in Computer Science and B.A. in Cognitive Science from the University of Southern California with a specialization in AI Applications. I work on the development, analysis, and applications of language models rooted in human cognition and understanding — my research interests include Natural Language Processing, AI for Understanding Human Thought, Cognitive Science, and Human-Computer Interaction.</p>
             <p>At USC, I was advised by <a className='lab-link' href="https://jessethomason.com/">Jesse Thomason</a>, <a className='lab-link' href="https://dornsife.usc.edu/tobenmintz/">Toben H. Mintz</a>, and <a className='lab-link' href="https://maja-mataric.web.app/">Maja Matarić</a>. My work has been supported by the USC Center for Undergraduate Research Fellowship, USC Provost Fellowship, and Undergraduate Research Associates Program.</p>
             <p>I graduated as a recipient of the <a className='lab-link' href="https://libraries.usc.edu/wallofscholars?award=1551" target="_blank" rel="noreferrer">USC Renaissance Scholar Prize</a>, awarded to ten undergraduates from the graduating class for academic excellence and multidisciplinary research in distinct fields, and the <a className='lab-link' href="https://ahf.usc.edu/commencement-honors/scholar-distinctions/discovery-2/" target="_blank" rel="noreferrer">Discovery Scholar Distinction</a> for my capstone research project.</p>
             <p className="currently-exploring"><strong>Currently exploring:</strong> How phonesthemes evoke sensorimotor experiences through human behavioral studies and computational modeling</p>
@@ -481,8 +481,8 @@ function App() {
         <div className="container">
           <h2 className="section-title"><Sparkles size={17} className="title-icon" aria-hidden="true" /> Miscellaneous</h2>
           <div className="misc-content">
-            <p>Outstide of research, I love to read and play guitar. I'm also an avid movie enthusiast.</p>
-            <p>I'm also currently trying to learn Spanish and French. Progress: slow but enthusiastic.</p>
+            <p>Outside of research, I love to read and play guitar. I'm also an avid movie enthusiast.</p>
+            <p>I'm currently trying to learn Spanish and French. Progress: slow but enthusiastic.</p>
           </div>
         </div>
       </section>
