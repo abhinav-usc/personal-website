@@ -79,7 +79,7 @@ function App() {
         { date: "JUL 2", icon: Mic, text: <>At <strong>ACL 2026</strong> in San Diego — presenting the <a className="news-link" href="https://aclanthology.org/2026.findings-acl.2038/" target="_blank" rel="noreferrer">SENSE</a> paper on July 5. Read my <a className="news-link" href="https://amazon-podcasts.notion.site/ACL-2026-39109b5e127b80d88cc0f5124026e63d" target="_blank" rel="noreferrer">conference notes</a>.</> },
         { date: "MAY", icon: GraduationCap, text: <>Graduating from USC with dual degrees in Computer Science and Cognitive Science, along with a specialization in AI Applications.</> },
         { date: "APR", icon: FileText, text: <>Two papers accepted at <strong>ACL 2026 Findings</strong>: <a className="news-link" href="https://aclanthology.org/2026.findings-acl.2038/" target="_blank" rel="noreferrer">Words that make SENSE</a> and <a className="news-link" href="https://aclanthology.org/2026.findings-acl.1641/" target="_blank" rel="noreferrer">Can LLMs Infer Human Actions and Motives?</a></> },
-        { date: "MAR", icon: Award, text: <>Awarded the <a className="news-link" href="https://libraries.usc.edu/wallofscholars?award=1551" target="_blank" rel="noreferrer">USC Renaissance Scholar Prize</a>, given to 10 undergraduates for excellence across two distinct fields.</> },
+        { date: "MAR", icon: Award, text: <>Awarded the <a className="news-link" href="https://libraries.usc.edu/wallofscholars?award=1551" target="_blank" rel="noreferrer">USC Renaissance Scholar Prize</a>, given to 10 undergraduates for academic excellence and multidisciplinary research in distinct fields.</> },
         { date: "FEB", icon: Award, text: <>Received the <a className="news-link" href="https://ahf.usc.edu/commencement-honors/scholar-distinctions/discovery-2/" target="_blank" rel="noreferrer">USC Discovery Scholar Distinction</a>.</> },
       ]
     },
@@ -396,7 +396,7 @@ function App() {
           <div className="hero-bio">
             <p>I'm a master's student in Computer Science at New York University, concentrating in Artificial Intelligence. I received my B.S. in Computer Science and B.A. in Cognitive Science from the University of Southern California with a specialization in Applications of Artificial Intelligence. I work on the development, analysis and applications of language models rooted in human cognition and understanding — my research interests include Natural Language Processing, AI for Understanding Human Thought, Cognitive Science, and Human-Computer Interaction.</p>
             <p>At USC, I was advised by <a className='lab-link' href="https://jessethomason.com/">Jesse Thomason</a>, <a className='lab-link' href="https://dornsife.usc.edu/tobenmintz/">Toben H. Mintz</a>, and <a className='lab-link' href="https://maja-mataric.web.app/">Maja Matarić</a>. My work has been supported by the USC Center for Undergraduate Research Fellowship, USC Provost Fellowship, and Undergraduate Research Associates Program.</p>
-            <p>I graduated as a recipient of the <a className='lab-link' href="https://libraries.usc.edu/wallofscholars?award=1551" target="_blank" rel="noreferrer">USC Renaissance Scholar Prize</a>, awarded to ten undergraduates from the graduating class for excellence in multidisciplinary academics and research, and the <a className='lab-link' href="https://ahf.usc.edu/commencement-honors/scholar-distinctions/discovery-2/" target="_blank" rel="noreferrer">Discovery Scholar Distinction</a> for my capstone research project.</p>
+            <p>I graduated as a recipient of the <a className='lab-link' href="https://libraries.usc.edu/wallofscholars?award=1551" target="_blank" rel="noreferrer">USC Renaissance Scholar Prize</a>, awarded to ten undergraduates from the graduating class for academic excellence and multidisciplinary research in distinct fields, and the <a className='lab-link' href="https://ahf.usc.edu/commencement-honors/scholar-distinctions/discovery-2/" target="_blank" rel="noreferrer">Discovery Scholar Distinction</a> for my capstone research project.</p>
             <p className="currently-exploring"><strong>Currently exploring:</strong> How phonesthemes evoke sensorimotor experiences through human behavioral studies and computational modeling</p>
           </div>
         </div>
@@ -481,8 +481,8 @@ function App() {
         <div className="container">
           <h2 className="section-title"><Sparkles size={17} className="title-icon" aria-hidden="true" /> Miscellaneous</h2>
           <div className="misc-content">
-            <p>When I'm not in the lab, I'm usually playing guitar (currently working through Blackbird by The Beatles), cooking my way through Italian and Mediterranean recipes with varying degrees of success, or reading. Currently on <em>The Iliad</em> by Homer.</p>
-            <p>I'm also trying to learn Spanish. Progress: slow but enthusiastic.</p>
+            <p>Outstide of research, I love to read and play guitar. I'm also an avid movie enthusiast.</p>
+            <p>I'm also currently trying to learn Spanish and French. Progress: slow but enthusiastic.</p>
           </div>
         </div>
       </section>

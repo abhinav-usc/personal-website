@@ -234,27 +234,26 @@ body {
   margin: 0 auto;
   padding: 2.25rem 1.2rem;
 }
-/* Section titles: serif heading with a trailing hairline rule */
+/* Section titles: serif heading with a hairline rule underneath (~80% wide) */
 .section-title {
   font-family: var(--font-serif);
   font-size: 1.3rem;
   font-weight: 600;
   margin-bottom: 1.4rem;
   color: var(--dark);
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
 }
 .section-title::after {
   content: '';
-  flex: 1;
+  display: block;
+  width: 82%;
   height: 1px;
   background: var(--border);
-  margin-left: 0.65rem;
+  margin-top: 0.5rem;
 }
 .title-icon {
   color: var(--light-gray);
-  flex-shrink: 0;
+  vertical-align: -0.12em;
+  margin-right: 0.4rem;
 }
 /* Small-caps subsection labels (Publications / Workshop Papers & Talks) */
 .subsection-title {
@@ -646,7 +645,6 @@ body {
 }
 .footer p {
   font-family: var(--font-serif);
-  font-style: italic;
   font-size: 0.85rem;
   color: var(--light-gray);
 }
