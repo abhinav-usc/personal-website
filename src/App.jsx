@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   Mail, Github, Linkedin, FileText, GraduationCap, Sun, Moon,
   Newspaper, FlaskConical, BookOpen, Code, Sparkles, ExternalLink,
@@ -67,6 +67,17 @@ function App() {
   const [showAllNews, setShowAllNews] = useState(false)
   const isPageLoaded = usePageLoadAnimation()
   const [theme, toggleTheme] = useTheme()
+
+  // Five quick clicks on the profile photo open the private hub.
+  const photoClicks = useRef([])
+  const handlePhotoClick = () => {
+    const now = Date.now()
+    photoClicks.current = [...photoClicks.current.filter(t => now - t < 3000), now]
+    if (photoClicks.current.length >= 5) {
+      photoClicks.current = []
+      window.location.href = '/hub'
+    }
+  }
 
   const togglePaper = (key) => {
     setExpandedPapers(prev => ({ ...prev, [key]: !prev[key] }))
@@ -378,7 +389,7 @@ function App() {
       <section className="hero">
         <div className="hero-container">
           <div className="hero-header">
-            <div className="hero-photo"><img src="/abhinav_headshot.png" alt="Abhinav Gupta" /></div>
+            <div className="hero-photo" onClick={handlePhotoClick}><img src="/abhinav_headshot.png" alt="Abhinav Gupta" draggable="false" /></div>
             <div className="hero-info">
               <h1 className="hero-title">Abhinav Gupta</h1>
               <p className="hero-subtitle">Researcher in NLP & Embodied AI</p>
