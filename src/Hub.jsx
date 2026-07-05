@@ -78,7 +78,7 @@ function buildICS(items) {
     `DTEND;TZID=America/Los_Angeles:${dt(p.day, p.end)}`,
     `SUMMARY:${icsEscape(`[${p.session.startsWith('Poster') ? 'Poster' : 'Oral'}] ${p.title}`)}`,
     `LOCATION:${icsEscape(`${p.room} — ${p.session}`)}`,
-    `DESCRIPTION:${icsEscape(`${p.authors}\nWhy: ${p.reasons.join(', ')}`)}`,
+    `DESCRIPTION:${icsEscape(`${p.authors}\nWhy: ${p.reasons.join(', ')}${p.url ? `\n${p.url}` : ''}`)}`,
     'BEGIN:VALARM', 'TRIGGER:-PT30M', 'ACTION:DISPLAY', `DESCRIPTION:${icsEscape(p.title)}`, 'END:VALARM',
     'END:VEVENT',
   ].join('\r\n')).join('\r\n')
@@ -172,7 +172,11 @@ function PaperRow({ p, starred, onStar, conflict }) {
           <span className="hub-type">{p.type}</span>
           {conflict && <span className="hub-conflict"><AlertTriangle size={11} /> overlap</span>}
         </div>
-        <p className="hub-paper-title">{p.title}</p>
+        <p className="hub-paper-title">
+          {p.url
+            ? <a href={p.url} target="_blank" rel="noreferrer" className="hub-title-link">{p.title}</a>
+            : p.title}
+        </p>
         <p className="hub-paper-authors">{p.authors}</p>
         <div className="hub-paper-foot">
           <span className="hub-session">{p.session}</span>
@@ -484,6 +488,8 @@ const HUB_CSS = `
     font-size: 0.68rem; font-weight: 600; color: #b3564f;
   }
   .hub-paper-title { font-family: var(--font-serif); font-size: 0.925rem; font-weight: 600; color: var(--dark); line-height: 1.4; margin-bottom: 0.15rem; }
+  .hub-title-link { color: inherit; text-decoration: none; transition: color 0.15s; }
+  .hub-title-link:hover { color: var(--primary); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
   .hub-paper-authors { font-size: 0.78rem; color: var(--text); margin-bottom: 0.25rem; }
   .hub-paper-foot { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
   .hub-session { font-size: 0.72rem; font-style: italic; color: var(--light-gray); margin-right: 0.2rem; }
