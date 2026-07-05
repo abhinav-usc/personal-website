@@ -52,7 +52,12 @@
       "Bash(curl -sL --max-time 120 -o acl2026.xml https://raw.githubusercontent.com/acl-org/acl-anthology/master/data/xml/2026.acl.xml)",
       "Bash(curl -sL --max-time 120 -o findings2026.xml https://raw.githubusercontent.com/acl-org/acl-anthology/master/data/xml/2026.findings.xml)",
       "Bash(git diff *)",
-      "Bash(GIT_SSH_COMMAND='ssh -o BatchMode=yes -o ConnectTimeout=10' git push origin main)"
+      "Bash(GIT_SSH_COMMAND='ssh -o BatchMode=yes -o ConnectTimeout=10' git push origin main)",
+      "Bash(git -C /Users/abghinav/Developer/personal_website log --oneline -2 -- .claude/settings.local.json)",
+      "Bash(git -C /Users/abghinav/Developer/personal_website status --short)",
+      "Bash(git -C /Users/abghinav/Developer/personal_website diff .claude/settings.local.json)",
+      "Bash(git -C /Users/abghinav/Developer/personal_website diff scripts/acl_agenda_data.py)",
+      "Bash(git -C /Users/abghinav/Developer/personal_website diff src/Hub.jsx)"
     ]
   }
 }

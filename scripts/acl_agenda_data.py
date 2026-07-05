@@ -49,12 +49,13 @@ LAB = ["Kaleen Shrestha", "Amin Banayeeanzade", "Brihi Joshi", "Jaspreet Ranjit"
        "Deqing Fu", "Haosheng Gan", "Keyu He", "Tejas Srinivasan", "Harish Dukkipati", "Zhonghao Shi",
        "Abhinav Gupta", "Ala Tak"]
 NYU = ["Kyunghyun Cho", "Tal Linzen", "Eunsol Choi"]
+RECS = ["Allen Chang"]  # people whose papers I want flagged as recommendations
 
 def name_rx(name):
     parts = name.split()
     return re.compile(r'\b' + re.escape(norm(parts[0])) + r'[\w\.\s\-]{0,25}?\b' + re.escape(norm(parts[-1])) + r'\b')
 
-NAME_RES = [(g, n, name_rx(n)) for g, names in (('lab', LAB), ('faculty', PROFS), ('usc', USC), ('nyu', NYU)) for n in names]
+NAME_RES = [(g, n, name_rx(n)) for g, names in (('lab', LAB), ('faculty', PROFS), ('usc', USC), ('nyu', NYU), ('rec', RECS)) for n in names]
 
 # ── topic subcategories (strict, title-level) ────────────────
 SUBTOPICS = [

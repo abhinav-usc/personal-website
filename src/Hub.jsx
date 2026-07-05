@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import {
   Star, LogOut, Sun, Moon, CalendarDays, Search, Plus, X, Link as LinkIcon,
-  StickyNote, Download, AlertTriangle, Lock
+  StickyNote, Download, AlertTriangle, Lock, Home
 } from 'lucide-react'
 import ACL_DATA from './acl_data.json'
 
@@ -16,7 +16,7 @@ const LS_NOTES = 'ag_hub_notes'
 
 const PEOPLE_TAGS = {
   mine: 'Mine', lab: 'Lab & friends', faculty: 'Target faculty',
-  usc: 'USC', nyu: 'NYU',
+  usc: 'USC', nyu: 'NYU', rec: 'Recs',
 }
 const TOPIC_TAGS = {
   grounding: 'Grounding', multimodal: 'Multimodal', embodied: 'Embodied',
@@ -280,6 +280,9 @@ export default function Hub() {
             <p className="hub-date">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</p>
           </div>
           <div className="hub-header-actions">
+            <a className="theme-toggle" href="/" aria-label="Back to main site" title="Back to main site">
+              <Home size={15} />
+            </a>
             <button className="theme-toggle" onClick={toggleTheme} aria-label="Toggle theme">
               {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
             </button>

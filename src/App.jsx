@@ -3,7 +3,7 @@ import {
   Mail, Github, Linkedin, FileText, GraduationCap, Sun, Moon,
   Newspaper, FlaskConical, BookOpen, Code, Sparkles, ExternalLink,
   Mic, Award, School, Phone, Quote, Check, ChevronDown, ChevronUp,
-  ArrowUpRight, Wrench, Presentation
+  ArrowUpRight, Wrench, Presentation, Menu, X
 } from 'lucide-react'
 import './App.css'
 
@@ -67,6 +67,7 @@ function App() {
   const [showAllNews, setShowAllNews] = useState(false)
   const isPageLoaded = usePageLoadAnimation()
   const [theme, toggleTheme] = useTheme()
+  const [menuOpen, setMenuOpen] = useState(false)
 
   // Five quick clicks on the profile photo open the private hub.
   const photoClicks = useRef([])
@@ -314,8 +315,6 @@ function App() {
         </div>
         <p className="research-authors">{formatAuthors(paper.authors)}</p>
         <p className="research-venue">{paper.venue}</p>
-        <p className="research-description">{paper.description}</p>
-
         <div className="paper-links">
           {paper.arxivId && (
             <a href={`https://arxiv.org/abs/${paper.arxivId}`} className="paper-badge" target="_blank" rel="noreferrer">
@@ -343,13 +342,16 @@ function App() {
             </a>
           )}
           {paper.bibtex && <CiteButton bibtex={paper.bibtex} />}
-          <button className="paper-badge read-more-badge" onClick={() => togglePaper(paper.title)}>
-            {expandedPapers[paper.title] ? '− read less' : '+ read more'}
-          </button>
+          {paper.type === 'workshop' && (
+            <button className="paper-badge read-more-badge" onClick={() => togglePaper(paper.title)}>
+              {expandedPapers[paper.title] ? '− read less' : '+ read more'}
+            </button>
+          )}
         </div>
 
-        {expandedPapers[paper.title] && (
+        {paper.type === 'workshop' && expandedPapers[paper.title] && (
           <div className="research-expanded">
+            <div className="expanded-section"><h4>Overview</h4><p>{paper.description}</p></div>
             <div className="expanded-section"><h4>Full Description</h4><p>{paper.fullDescription}</p></div>
             <div className="expanded-section"><h4>My Contribution</h4><p>{paper.myRole}</p></div>
             <div className="expanded-section"><h4>Impact</h4><p>{paper.impact}</p></div>
@@ -385,6 +387,30 @@ function App() {
           </div>
         </div>
       </nav>
+
+      <div className="mobile-nav">
+        <button
+          className="hamburger"
+          onClick={() => setMenuOpen(open => !open)}
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={menuOpen}
+        >
+          {menuOpen ? <X size={18} /> : <Menu size={18} />}
+        </button>
+        {menuOpen && (
+          <div className="mobile-menu">
+            <a href="#news" onClick={() => setMenuOpen(false)}><Newspaper size={14} /> News</a>
+            <a href="#research" onClick={() => setMenuOpen(false)}><FlaskConical size={14} /> Research</a>
+            <a href="#teaching" onClick={() => setMenuOpen(false)}><GraduationCap size={14} /> Teaching</a>
+            <a href="#projects" onClick={() => setMenuOpen(false)}><Code size={14} /> Projects</a>
+            <a href={cvLink} target="_blank" rel="noreferrer" onClick={() => setMenuOpen(false)}><FileText size={14} /> CV</a>
+            <div className="mobile-menu-divider" />
+            <button onClick={toggleTheme}>
+              {theme === 'dark' ? <><Sun size={14} /> Light mode</> : <><Moon size={14} /> Dark mode</>}
+            </button>
+          </div>
+        )}
+      </div>
 
       <section className="hero">
         <div className="hero-container">
