@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import {
   Star, LogOut, Sun, Moon, CalendarDays, Search, Plus, X, Link as LinkIcon,
-  StickyNote, Download, AlertTriangle, Lock, Home
+  StickyNote, Download, AlertTriangle, Lock, Home, SlidersHorizontal
 } from 'lucide-react'
 import ACL_DATA from './acl_data.json'
 
@@ -22,6 +22,8 @@ const TOPIC_TAGS = {
   grounding: 'Grounding', multimodal: 'Multimodal', embodied: 'Embodied',
   cogsci: 'CogSci', humaneval: 'Human eval', social: 'Social',
 }
+const FORMATS = ['Oral', 'Poster', 'Keynote']
+const TYPES = ['Long', 'Short', 'Findings', 'TACL', 'CL', 'Demo', 'SRW', 'Industry']
 const DAYS = [
   { key: '2026-07-05', label: 'Sun 5' },
   { key: '2026-07-06', label: 'Mon 6' },
@@ -80,9 +82,9 @@ function buildICS(items) {
     `UID:${p.id}@abhinavgupta.dev`,
     `DTSTART;TZID=America/Los_Angeles:${dt(p.day, p.start)}`,
     `DTEND;TZID=America/Los_Angeles:${dt(p.day, p.end)}`,
-    `SUMMARY:${icsEscape(`[${p.session.startsWith('Poster') ? 'Poster' : 'Oral'}] ${p.title}`)}`,
+    `SUMMARY:${icsEscape(`[${p.type === 'Keynote' ? 'Keynote' : p.session.startsWith('Poster') ? 'Poster' : 'Oral'}] ${p.title}`)}`,
     `LOCATION:${icsEscape(`${p.room} — ${p.session}`)}`,
-    `DESCRIPTION:${icsEscape(`${p.authors}\nWhy: ${p.reasons.join(', ')}${p.url ? `\n${p.url}` : ''}`)}`,
+    `DESCRIPTION:${icsEscape(`${p.authors}${p.reasons.length ? `\nWhy: ${p.reasons.join(', ')}` : ''}${p.url ? `\n${p.url}` : ''}`)}`,
     'BEGIN:VALARM', 'TRIGGER:-PT30M', 'ACTION:DISPLAY', `DESCRIPTION:${icsEscape(p.title)}`, 'END:VALARM',
     'END:VEVENT',
   ].join('\r\n')).join('\r\n')
@@ -98,12 +100,12 @@ function buildICS(items) {
     'END:VCALENDAR',
   ].join('\r\n')
 }
-function downloadICS(items) {
+function downloadICS(items, filename = 'acl-2026-agenda.ics') {
   const blob = new Blob([buildICS(items)], { type: 'text/calendar;charset=utf-8' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = 'acl-2026-agenda.ics'
+  a.download = filename
   a.click()
   URL.revokeObjectURL(url)
 }
@@ -113,6 +115,28 @@ const mins = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m }
 function overlaps(a, b) {
   return a.day === b.day && mins(a.start) < mins(b.end) && mins(b.start) < mins(a.end) && a.id !== b.id
 }
+
+// Precompute presentation format and a search haystack once per paper
+for (const p of ACL_DATA) {
+  p.format = p.type === 'Keynote' ? 'Keynote' : p.session.startsWith('Poster') ? 'Poster' : 'Oral'
+  p.q = `${p.title} ${p.authors} ${p.session}`.toLowerCase()
+}
+
+const KEYNOTES = ACL_DATA.filter(p => p.type === 'Keynote')
+
+function groupByDay(items) {
+  const byDay = new Map()
+  for (const p of items) {
+    if (!byDay.has(p.day)) byDay.set(p.day, [])
+    byDay.get(p.day).push(p)
+  }
+  for (const list of byDay.values()) list.sort((a, b) => a.start.localeCompare(b.start))
+  return [...byDay.entries()].sort(([a], [b]) => a.localeCompare(b))
+}
+
+const fmtDay = day => new Date(day + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+
+const toggle = (setter, v) => setter(prev => prev.includes(v) ? prev.filter(x => x !== v) : [...prev, v])
 
 // ── LOGIN ────────────────────────────────────────────────────
 function Login({ onAuthed }) {
@@ -158,10 +182,10 @@ function Login({ onAuthed }) {
 }
 
 // ── PAPER ROW ────────────────────────────────────────────────
-function PaperRow({ p, starred, onStar, conflict }) {
+function PaperRow({ p, starred, onStar, conflict, dim }) {
   const dayShort = p.dayName.slice(0, 3)
   return (
-    <div className={`hub-paper ${starred ? 'starred' : ''}`}>
+    <div className={`hub-paper ${starred ? 'starred' : ''} ${dim ? 'dim' : ''}`}>
       <button
         className={`hub-star ${starred ? 'on' : ''}`}
         onClick={() => onStar(p.id)}
@@ -173,7 +197,7 @@ function PaperRow({ p, starred, onStar, conflict }) {
         <div className="hub-paper-meta">
           <code className="hub-when">{dayShort} {p.start}–{p.end}</code>
           <span className="hub-room">{p.room}</span>
-          <span className="hub-type">{p.type}</span>
+          <span className={`hub-type ${p.type === 'Keynote' ? 'keynote' : ''}`}>{p.type}</span>
           {conflict && <span className="hub-conflict"><AlertTriangle size={11} /> overlap</span>}
         </div>
         <p className="hub-paper-title">
@@ -201,13 +225,22 @@ export default function Hub() {
   const [links, setLinks] = useLocalState(LS_LINKS, DEFAULT_LINKS)
   const [notes, setNotes] = useLocalState(LS_NOTES, '')
   const [view, setView] = useState(() => {
-    try { return new URLSearchParams(window.location.search).get('view') === 'agenda' ? 'agenda' : 'all' } catch { return 'all' }
+    try {
+      const v = new URLSearchParams(window.location.search).get('view')
+      return ['agenda', 'keynotes'].includes(v) ? v : 'all'
+    } catch { return 'all' }
   })
   const [query, setQuery] = useState('')
   const [dayFilter, setDayFilter] = useState(null)
-  // Default to the people filters — topic categories are opt-in (they're big).
-  const [tagFilter, setTagFilter] = useState(Object.keys(PEOPLE_TAGS))
+  // No filters by default — the whole program shows until a chip is toggled on.
+  const [tagFilter, setTagFilter] = useState([])
+  const [formatFilter, setFormatFilter] = useState([])
+  const [typeFilter, setTypeFilter] = useState([])
+  const [moreOpen, setMoreOpen] = useState(false)
+  const [limit, setLimit] = useState(200)
   const [newLink, setNewLink] = useState({ title: '', url: '' })
+
+  useEffect(() => { setLimit(200) }, [query, dayFilter, tagFilter, formatFilter, typeFilter])
 
   useEffect(() => {
     document.title = 'Hub'
@@ -225,23 +258,18 @@ export default function Hub() {
     return ACL_DATA.filter(p => {
       if (dayFilter && p.day !== dayFilter) return false
       if (tagFilter.length && !tagFilter.some(t => p.tags.includes(t))) return false
-      if (q && !(p.title.toLowerCase().includes(q) || p.authors.toLowerCase().includes(q))) return false
+      if (formatFilter.length && !formatFilter.includes(p.format)) return false
+      if (typeFilter.length && !typeFilter.includes(p.type)) return false
+      if (q && !p.q.includes(q)) return false
       return true
     })
-  }, [query, dayFilter, tagFilter])
+  }, [query, dayFilter, tagFilter, formatFilter, typeFilter])
 
-  const agenda = useMemo(() => {
-    const starredItems = ACL_DATA.filter(p => starSet.has(p.id))
-    const byDay = new Map()
-    for (const p of starredItems) {
-      if (!byDay.has(p.day)) byDay.set(p.day, [])
-      byDay.get(p.day).push(p)
-    }
-    for (const list of byDay.values()) list.sort((a, b) => a.start.localeCompare(b.start))
-    return [...byDay.entries()].sort(([a], [b]) => a.localeCompare(b))
-  }, [starSet])
+  // Filters that live behind the "More filters" toggle, for the collapsed-state count
+  const moreCount = tagFilter.filter(t => t in TOPIC_TAGS).length + formatFilter.length + typeFilter.length
 
   const starredItems = useMemo(() => ACL_DATA.filter(p => starSet.has(p.id)), [starSet])
+  const agenda = useMemo(() => groupByDay(starredItems), [starredItems])
   const conflictIds = useMemo(() => {
     const ids = new Set()
     for (const a of starredItems) for (const b of starredItems) {
@@ -249,6 +277,11 @@ export default function Hub() {
     }
     return ids
   }, [starredItems])
+
+  // Keynotes that fit around the starred agenda (vs. ones an agenda item clashes with)
+  const freeKeynotes = useMemo(() => KEYNOTES.filter(k => !starredItems.some(s => overlaps(k, s))), [starredItems])
+  const clashKeynotes = useMemo(() => KEYNOTES.filter(k => starredItems.some(s => overlaps(k, s))), [starredItems])
+  const keynoteAgenda = useMemo(() => groupByDay(freeKeynotes), [freeKeynotes])
 
   const logout = () => {
     try { localStorage.removeItem(LS_AUTH) } catch { /* ignore */ }
@@ -321,9 +354,15 @@ export default function Hub() {
             <div className="hub-views">
               <button className={`hub-view-btn ${view === 'all' ? 'active' : ''}`} onClick={() => setView('all')}>All papers</button>
               <button className={`hub-view-btn ${view === 'agenda' ? 'active' : ''}`} onClick={() => setView('agenda')}>My agenda ({stars.length})</button>
+              <button className={`hub-view-btn ${view === 'keynotes' ? 'active' : ''}`} onClick={() => setView('keynotes')}>Keynotes ({freeKeynotes.length})</button>
             </div>
             {view === 'agenda' && stars.length > 0 && (
               <button className="hub-primary hub-export" onClick={() => downloadICS(starredItems)}>
+                <Download size={13} /> Apple Calendar (.ics)
+              </button>
+            )}
+            {view === 'keynotes' && freeKeynotes.length > 0 && (
+              <button className="hub-primary hub-export" onClick={() => downloadICS(freeKeynotes, 'acl-2026-keynotes.ics')}>
                 <Download size={13} /> Apple Calendar (.ics)
               </button>
             )}
@@ -334,7 +373,7 @@ export default function Hub() {
               <div className="hub-filters">
                 <div className="hub-search">
                   <Search size={13} aria-hidden="true" />
-                  <input placeholder="Search titles & authors…" value={query} onChange={e => setQuery(e.target.value)} />
+                  <input placeholder="Search titles, authors, tracks…" value={query} onChange={e => setQuery(e.target.value)} />
                 </div>
                 <div className="hub-chiprow">
                   {DAYS.map(d => (
@@ -348,26 +387,55 @@ export default function Hub() {
                   {Object.entries(PEOPLE_TAGS).map(([tag, label]) => (
                     <button key={tag}
                       className={`paper-badge hub-chip ${tagFilter.includes(tag) ? 'active' : ''}`}
-                      onClick={() => setTagFilter(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])}>
+                      onClick={() => toggle(setTagFilter, tag)}>
                       {label}
                     </button>
                   ))}
                   <span className="hub-chip-sep" />
-                  {Object.entries(TOPIC_TAGS).map(([tag, label]) => (
-                    <button key={tag}
-                      className={`paper-badge hub-chip ${tagFilter.includes(tag) ? 'active' : ''}`}
-                      onClick={() => setTagFilter(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])}>
-                      {label}
-                    </button>
-                  ))}
+                  <button className={`paper-badge hub-chip ${moreOpen || moreCount ? 'active' : ''}`}
+                    onClick={() => setMoreOpen(o => !o)}>
+                    <SlidersHorizontal size={10} /> More filters{moreCount ? ` · ${moreCount}` : ''}
+                  </button>
                 </div>
+                {moreOpen && (
+                  <div className="hub-chiprow">
+                    {Object.entries(TOPIC_TAGS).map(([tag, label]) => (
+                      <button key={tag}
+                        className={`paper-badge hub-chip ${tagFilter.includes(tag) ? 'active' : ''}`}
+                        onClick={() => toggle(setTagFilter, tag)}>
+                        {label}
+                      </button>
+                    ))}
+                    <span className="hub-chip-sep" />
+                    {FORMATS.map(f => (
+                      <button key={f}
+                        className={`paper-badge hub-chip ${formatFilter.includes(f) ? 'active' : ''}`}
+                        onClick={() => toggle(setFormatFilter, f)}>
+                        {f}
+                      </button>
+                    ))}
+                    <span className="hub-chip-sep" />
+                    {TYPES.map(t => (
+                      <button key={t}
+                        className={`paper-badge hub-chip ${typeFilter.includes(t) ? 'active' : ''}`}
+                        onClick={() => toggle(setTypeFilter, t)}>
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
-              <p className="hub-count">{filtered.length} of {ACL_DATA.length} candidates · {stars.length} starred</p>
+              <p className="hub-count">{filtered.length} of {ACL_DATA.length} in the program · {stars.length} starred</p>
               <div className="hub-list">
-                {filtered.map(p => (
+                {filtered.slice(0, limit).map(p => (
                   <PaperRow key={p.id} p={p} starred={starSet.has(p.id)} onStar={toggleStar} conflict={false} />
                 ))}
                 {filtered.length === 0 && <p className="hub-empty">Nothing matches — loosen the filters.</p>}
+                {filtered.length > limit && (
+                  <button className="hub-showmore" onClick={() => setLimit(l => l + 500)}>
+                    Show 500 more · {filtered.length - limit} remaining
+                  </button>
+                )}
               </div>
             </>
           )}
@@ -377,12 +445,35 @@ export default function Hub() {
               {agenda.length === 0 && <p className="hub-empty">No stars yet — flip to “All papers” and star what you want to attend.</p>}
               {agenda.map(([day, items]) => (
                 <div key={day} className="hub-agenda-day">
-                  <h3 className="subsection-title">{new Date(day + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}{day === todayISO ? ' — today' : ''}</h3>
+                  <h3 className="subsection-title">{fmtDay(day)}{day === todayISO ? ' — today' : ''}</h3>
                   {items.map(p => (
                     <PaperRow key={p.id} p={p} starred onStar={toggleStar} conflict={conflictIds.has(p.id)} />
                   ))}
                 </div>
               ))}
+            </div>
+          )}
+
+          {view === 'keynotes' && (
+            <div className="hub-agenda">
+              <p className="hub-count">{freeKeynotes.length} of {KEYNOTES.length} keynotes fit around your agenda · exported separately from it</p>
+              {freeKeynotes.length === 0 && <p className="hub-empty">Every keynote overlaps something you starred.</p>}
+              {keynoteAgenda.map(([day, items]) => (
+                <div key={day} className="hub-agenda-day">
+                  <h3 className="subsection-title">{fmtDay(day)}{day === todayISO ? ' — today' : ''}</h3>
+                  {items.map(p => (
+                    <PaperRow key={p.id} p={p} starred={starSet.has(p.id)} onStar={toggleStar} conflict={false} />
+                  ))}
+                </div>
+              ))}
+              {clashKeynotes.length > 0 && (
+                <div className="hub-agenda-day">
+                  <h3 className="subsection-title">Left out — overlaps your agenda</h3>
+                  {clashKeynotes.map(p => (
+                    <PaperRow key={p.id} p={p} starred={starSet.has(p.id)} onStar={toggleStar} conflict dim />
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -471,7 +562,14 @@ const HUB_CSS = `
     font-size: 0.85rem; font-family: inherit; color: var(--dark);
   }
   .hub-chiprow { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
-  .hub-chip { cursor: pointer; }
+  .hub-chip { cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem; }
+  .hub-showmore {
+    align-self: center; margin: 0.9rem 0 0.3rem; padding: 0.45rem 1rem;
+    background: none; border: 1px solid var(--border); border-radius: 6px;
+    font-family: var(--font-mono); font-size: 0.72rem; color: var(--light-gray);
+    cursor: pointer; transition: color 0.2s, border-color 0.2s;
+  }
+  .hub-showmore:hover { color: var(--primary); border-color: var(--primary); }
   .hub-chip.active { color: var(--primary); border-color: var(--primary); background: var(--bg-subtle); }
   .hub-chip.today { font-weight: 700; }
   .hub-chip-sep { width: 1px; height: 14px; background: var(--border); margin: 0 0.25rem; }
@@ -499,6 +597,11 @@ const HUB_CSS = `
   }
   .hub-room { font-size: 0.75rem; font-weight: 600; color: var(--primary); }
   .hub-type { font-family: var(--font-mono); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--light-gray); }
+  .hub-type.keynote {
+    color: var(--primary); border: 1px solid var(--primary);
+    border-radius: 3px; padding: 0.05rem 0.35rem;
+  }
+  .hub-paper.dim { opacity: 0.55; }
   .hub-conflict {
     display: inline-flex; align-items: center; gap: 0.25rem;
     font-size: 0.68rem; font-weight: 600; color: #b3564f;

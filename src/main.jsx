@@ -1,10 +1,12 @@
-import { StrictMode } from 'react'
+import { StrictMode, Suspense, lazy } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
 import Sense from './SENSE.jsx'
-import Hub from './Hub.jsx'
+
+// Lazy: the hub bundles the full ACL program (~1.6 MB) — keep it off the public pages.
+const Hub = lazy(() => import('./Hub.jsx'))
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
@@ -34,7 +36,7 @@ createRoot(document.getElementById('root')).render(
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/sense" element={<Sense />} />
-        <Route path="/hub" element={<Hub />} />
+        <Route path="/hub" element={<Suspense fallback={null}><Hub /></Suspense>} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,

@@ -2,8 +2,9 @@
 """Regenerate src/acl_data.json for the hub's ACL agenda.
 
 Pipeline: parse the (gitignored) conference handbook PDF text into sessions/papers
--> match against people lists and topic subcategories -> clean PDF-extraction
-artifacts -> attach ACL Anthology URLs (author-verified title match).
+-> annotate with people lists and topic subcategories (all papers are kept; only
+matched ones get tags/reasons) -> clean PDF-extraction artifacts -> attach ACL
+Anthology URLs (author-verified title match).
 
 Usage:
   python3 scripts/acl_agenda_data.py "ACL26 Digital Conference Handbook.pdf" \
@@ -70,6 +71,38 @@ SUBTOPIC_RES = [(tag, re.compile(rx)) for tag, rx in SUBTOPICS]
 GROUNDING_EXCLUDE = re.compile(r'(theoretical|empirical|firm|well|strong)ly[- ]grounded|grounded theory')
 
 MINE = ('make sense: sensorimotor', 'infer human actions and motives')
+
+# ── keynotes (handbook Keynotes section; time ranges from the Conference Overview table) ──
+KEYNOTES = [
+    dict(title='A New Balancing Act: Reflections on the Relationship between Computational Linguistics and AI',
+         authors='Philip Resnik — University of Maryland',
+         day='2026-07-05', dayName='Sunday', start='09:30', end='10:30',
+         session='Keynote', room='Harbor Ballroom'),
+    dict(title='How Can AI Help Us Manage AI Conferences (where Troubles Are Caused by AI)',
+         authors='Yue Zhang — Westlake University',
+         day='2026-07-06', dayName='Monday', start='01:00', end='02:00',
+         session='Keynote (virtual)', room='Underline (virtual)'),
+    dict(title='ACL 2026 Presidential Address',
+         authors='Barbara Plank — LMU Munich & IT University of Copenhagen',
+         day='2026-07-06', dayName='Monday', start='15:30', end='16:15',
+         session='Presidential Address', room='Harbor Ballroom'),
+    dict(title='Explanation and Understanding: A Perspective from Cognitive Science',
+         authors='Tania Lombrozo — Princeton University',
+         day='2026-07-06', dayName='Monday', start='16:45', end='17:45',
+         session='Keynote', room='Harbor Ballroom'),
+]
+
+def keynote_events():
+    out = []
+    for k in KEYNOTES:
+        tags = {'keynote'}
+        for tag, rx in SUBTOPIC_RES:
+            if rx.search(norm(k['title'])):
+                tags.add(tag)
+        speaker = k['authors'].split('—')[0]
+        pid = 'keynote-' + re.sub(r'[^a-z0-9]+', '-', norm(speaker)).strip('-')
+        out.append(dict(k, type='Keynote', tags=sorted(tags), reasons=[], id=pid))
+    return out
 
 TYPE_RX = re.compile(r'^\[(Long|Short|Findings|Demo|SRW|TACL|CL|Industry)\]\s*(.*)')
 POSTER_RX = re.compile(r'^Poster Session ([A-Z])\s*\(([^)]+)\)\s*$')
@@ -145,6 +178,9 @@ def parse_papers(text):
 def match_papers(papers):
     out, seen = [], set()
     for p in papers:
+        key = (p['title'][:60], p['session'])
+        if key in seen: continue
+        seen.add(key)
         a, t = norm(p['authors']), norm(p['title'])
         reasons, tags = [], set()
         for g, n, rx in NAME_RES:
@@ -153,10 +189,6 @@ def match_papers(papers):
             if rx.search(t):
                 if tag == 'grounding' and GROUNDING_EXCLUDE.search(t): continue
                 reasons.append(tag); tags.add(tag)
-        if not reasons: continue
-        key = (p['title'][:60], p['session'])
-        if key in seen: continue
-        seen.add(key)
         p['tags'] = sorted(tags); p['reasons'] = list(dict.fromkeys(reasons))
         out.append(p)
     return out
@@ -236,11 +268,13 @@ def main():
     papers = parse_papers(text)
     print('parsed papers:', len(papers))
     matched = finalize(match_papers(papers))
-    print('matched:', len(matched))
+    print('kept:', len(matched), '· tagged:', sum(1 for p in matched if p['tags']))
     from collections import Counter
     print(Counter(t for p in matched for t in p['tags']))
     if xmls:
         print('anthology-linked:', attach_anthology(matched, xmls), 'of', len(matched))
+    matched += keynote_events()
+    matched.sort(key=lambda p: (p['day'], p['start'], p['session'], p['title']))
     json.dump(matched, open(OUT, 'w'), separators=(',', ':'), ensure_ascii=False)
     print('wrote', OUT)
 
