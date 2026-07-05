@@ -57,7 +57,8 @@
       "Bash(git -C /Users/abghinav/Developer/personal_website status --short)",
       "Bash(git -C /Users/abghinav/Developer/personal_website diff .claude/settings.local.json)",
       "Bash(git -C /Users/abghinav/Developer/personal_website diff scripts/acl_agenda_data.py)",
-      "Bash(git -C /Users/abghinav/Developer/personal_website diff src/Hub.jsx)"
+      "Bash(git -C /Users/abghinav/Developer/personal_website diff src/Hub.jsx)",
+      "Bash(curl -s \"https://api.github.com/repos/abhinav-usc/personal-website/actions/runs?per_page=1\")"
     ]
   }
 }

@@ -271,8 +271,10 @@ function App() {
   const workshopPapers = researchProjects.filter(p => p.type === "workshop")
 
   const teaching = [
-    { role: "Math Peer Mentor", org: "USC Viterbi MESA", date: "2025 – 2026", note: "Ran weekly calculus study sessions for engineering freshmen and led program outreach through classroom visits and campus science clubs." },
-    { role: "Course Producer & Peer Mentor", org: "USC Viterbi School of Engineering", date: "2022 – 2024", note: "CSCI 270 (Algorithms), CSCI 170 (Discrete Methods), CSCI 102 (C++) — held discussion sections, curated and graded exams, and mentored 300+ students." }
+    { role: "Math Peer Mentor", org: "USC Viterbi MESA", date: "2025 – 2026" },
+    { role: "Course Producer", org: "CSCI 170: Discrete Methods — Aaron Cote (Spring '22), Victor Adamchik (Fall '22), Shahriar Shamsian (Fall '24)", date: "2022 – 2024" },
+    { role: "Peer Mentor", org: "CSCI 270: Algorithms — Aaron Cote", date: "Fall '23 – Spring '24" },
+    { role: "Course Producer", org: "CSCI 102: Fundamentals of Computation — Mohammad Reza Rajati", date: "Spring '23" },
   ]
 
   const sweProjects = [
@@ -488,7 +490,6 @@ function App() {
                   <span className="teaching-org">{t.org}</span>
                   <span className="teaching-date">{t.date}</span>
                 </div>
-                <p className="teaching-note">{t.note}</p>
               </div>
             ))}
           </div>

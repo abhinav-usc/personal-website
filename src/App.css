@@ -619,13 +619,6 @@ body {
   color: var(--light-gray);
   margin-left: auto;
 }
-.teaching-note {
-  font-size: 0.85rem;
-  color: var(--text);
-  line-height: 1.55;
-  margin-top: 0.15rem;
-}
-
 /* Software projects: numbered editorial index */
 .projects-list {
   display: grid;
@@ -868,9 +861,11 @@ body {
   .teaching-role {
     font-size: 0.85rem;
   }
-  .teaching-org,
-  .teaching-note {
+  .teaching-org {
     font-size: 0.8rem;
+  }
+  .teaching-org::before {
+    display: none;
   }
   .teaching-date {
     font-size: 0.7rem;
