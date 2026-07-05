@@ -283,6 +283,26 @@ export default function Hub() {
 
       <section>
         <div className="container">
+          <h2 className="section-title"><LinkIcon size={16} className="title-icon" aria-hidden="true" /> Quick Links</h2>
+          <div className="hub-links">
+            {links.map((l, i) => (
+              <div key={i} className="hub-link-row">
+                <a href={l.url} target="_blank" rel="noreferrer" className="hub-link">{l.title}</a>
+                <span className="hub-link-url">{l.url.replace(/^https?:\/\//, '').slice(0, 48)}</span>
+                <button className="hub-link-x" onClick={() => setLinks(prev => prev.filter((_, j) => j !== i))} aria-label="Remove link"><X size={13} /></button>
+              </div>
+            ))}
+          </div>
+          <form className="hub-addlink" onSubmit={addLink}>
+            <input className="hub-input" placeholder="title" value={newLink.title} onChange={e => setNewLink({ ...newLink, title: e.target.value })} />
+            <input className="hub-input grow" placeholder="url" value={newLink.url} onChange={e => setNewLink({ ...newLink, url: e.target.value })} />
+            <button className="hub-primary" type="submit"><Plus size={13} /> add</button>
+          </form>
+        </div>
+      </section>
+
+      <section>
+        <div className="container">
           <h2 className="section-title"><CalendarDays size={17} className="title-icon" aria-hidden="true" /> ACL 2026 · San Diego</h2>
 
           <div className="hub-toolbar">
@@ -345,26 +365,6 @@ export default function Hub() {
               ))}
             </div>
           )}
-        </div>
-      </section>
-
-      <section>
-        <div className="container">
-          <h2 className="section-title"><LinkIcon size={16} className="title-icon" aria-hidden="true" /> Quick Links</h2>
-          <div className="hub-links">
-            {links.map((l, i) => (
-              <div key={i} className="hub-link-row">
-                <a href={l.url} target="_blank" rel="noreferrer" className="hub-link">{l.title}</a>
-                <span className="hub-link-url">{l.url.replace(/^https?:\/\//, '').slice(0, 48)}</span>
-                <button className="hub-link-x" onClick={() => setLinks(prev => prev.filter((_, j) => j !== i))} aria-label="Remove link"><X size={13} /></button>
-              </div>
-            ))}
-          </div>
-          <form className="hub-addlink" onSubmit={addLink}>
-            <input className="hub-input" placeholder="title" value={newLink.title} onChange={e => setNewLink({ ...newLink, title: e.target.value })} />
-            <input className="hub-input grow" placeholder="url" value={newLink.url} onChange={e => setNewLink({ ...newLink, url: e.target.value })} />
-            <button className="hub-primary" type="submit"><Plus size={13} /> add</button>
-          </form>
         </div>
       </section>
 
