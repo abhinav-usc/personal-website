@@ -195,6 +195,10 @@ function groupByDay(items) {
 
 const fmtDay = day => new Date(day + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
 
+// Conference-local end time (San Diego = PDT in July, UTC-7) so the
+// upcoming/past split is right even from a device in another timezone.
+const endsAt = p => new Date(`${p.day}T${p.end}:00-07:00`).getTime()
+
 const toggle = (setter, v) => setter(prev => prev.includes(v) ? prev.filter(x => x !== v) : [...prev, v])
 
 const NO_STARS = [] // stable fallback while the hub doc is loading
@@ -347,8 +351,19 @@ export default function Hub() {
   // Filters that live behind the "More filters" toggle, for the collapsed-state count
   const moreCount = tagFilter.filter(t => t in TOPIC_TAGS).length + formatFilter.length + typeFilter.length
 
+  // Ticking clock (1 min) so finished sessions drift into the Past tab on their own
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 60_000)
+    return () => clearInterval(t)
+  }, [])
+
   const starredItems = useMemo(() => ACL_DATA.filter(p => starSet.has(p.id)), [starSet])
-  const agenda = useMemo(() => groupByDay(starredItems), [starredItems])
+  const upcomingStarred = useMemo(() => starredItems.filter(p => endsAt(p) > now), [starredItems, now])
+  const pastStarred = useMemo(() => starredItems.filter(p => endsAt(p) <= now), [starredItems, now])
+  const agenda = useMemo(() => groupByDay(upcomingStarred), [upcomingStarred])
+  const pastAgenda = useMemo(() => groupByDay(pastStarred), [pastStarred])
+  const [agendaTab, setAgendaTab] = useState('upcoming')
   const conflictIds = useMemo(() => {
     const ids = new Set()
     for (const a of starredItems) for (const b of starredItems) {
@@ -439,8 +454,11 @@ export default function Hub() {
               <button className={`hub-view-btn ${view === 'agenda' ? 'active' : ''}`} onClick={() => setView('agenda')}>My agenda ({stars.length})</button>
               <button className={`hub-view-btn ${view === 'keynotes' ? 'active' : ''}`} onClick={() => setView('keynotes')}>Keynotes ({freeKeynotes.length})</button>
             </div>
-            {view === 'agenda' && stars.length > 0 && (
-              <button className="hub-primary hub-export" onClick={() => downloadICS(starredItems)}>
+            {view === 'agenda' && (agendaTab === 'past' ? pastStarred : upcomingStarred).length > 0 && (
+              <button className="hub-primary hub-export"
+                onClick={() => agendaTab === 'past'
+                  ? downloadICS(pastStarred, 'acl-2026-agenda-past.ics')
+                  : downloadICS(upcomingStarred)}>
                 <Download size={13} /> Apple Calendar (.ics)
               </button>
             )}
@@ -525,15 +543,44 @@ export default function Hub() {
 
           {view === 'agenda' && (
             <div className="hub-agenda">
-              {agenda.length === 0 && <p className="hub-empty">No stars yet — flip to “All papers” and star what you want to attend.</p>}
-              {agenda.map(([day, items]) => (
-                <div key={day} className="hub-agenda-day">
-                  <h3 className="subsection-title">{fmtDay(day)}{day === todayISO ? ' — today' : ''}</h3>
-                  {items.map(p => (
-                    <PaperRow key={p.id} p={p} starred onStar={toggleStar} conflict={conflictIds.has(p.id)} />
+              <div className="hub-subtabs">
+                <button className={`paper-badge hub-chip ${agendaTab === 'upcoming' ? 'active' : ''}`}
+                  onClick={() => setAgendaTab('upcoming')}>Up next ({upcomingStarred.length})</button>
+                <button className={`paper-badge hub-chip ${agendaTab === 'past' ? 'active' : ''}`}
+                  onClick={() => setAgendaTab('past')}>Past ({pastStarred.length})</button>
+              </div>
+              {agendaTab === 'upcoming' && (
+                <>
+                  {upcomingStarred.length === 0 && (
+                    <p className="hub-empty">
+                      {stars.length === 0
+                        ? 'No stars yet — flip to “All papers” and star what you want to attend.'
+                        : 'Nothing left on the schedule — everything you starred has wrapped. It lives in Past.'}
+                    </p>
+                  )}
+                  {agenda.map(([day, items]) => (
+                    <div key={day} className="hub-agenda-day">
+                      <h3 className="subsection-title">{fmtDay(day)}{day === todayISO ? ' — today' : ''}</h3>
+                      {items.map(p => (
+                        <PaperRow key={p.id} p={p} starred onStar={toggleStar} conflict={conflictIds.has(p.id)} />
+                      ))}
+                    </div>
                   ))}
-                </div>
-              ))}
+                </>
+              )}
+              {agendaTab === 'past' && (
+                <>
+                  {pastStarred.length === 0 && <p className="hub-empty">Nothing here yet — sessions land here after they end.</p>}
+                  {pastAgenda.map(([day, items]) => (
+                    <div key={day} className="hub-agenda-day">
+                      <h3 className="subsection-title">{fmtDay(day)}{day === todayISO ? ' — today' : ''}</h3>
+                      {items.map(p => (
+                        <PaperRow key={p.id} p={p} starred onStar={toggleStar} conflict={false} />
+                      ))}
+                    </div>
+                  ))}
+                </>
+              )}
             </div>
           )}
 
@@ -707,6 +754,7 @@ const HUB_CSS = `
   .hub-paper.starred .hub-paper-title { color: var(--primary); }
   .hub-empty { font-size: 0.85rem; color: var(--light-gray); font-style: italic; padding: 1rem 0; }
   .hub-agenda-day { margin-bottom: 1.4rem; }
+  .hub-subtabs { display: flex; gap: 0.4rem; margin-bottom: 0.9rem; }
 
   /* Links */
   .hub-links { display: flex; flex-direction: column; }
