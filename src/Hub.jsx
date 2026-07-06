@@ -258,10 +258,15 @@ function Splash({ label }) {
 }
 
 // ── PAPER ROW ────────────────────────────────────────────────
+// The two physical poster halls get a loud venue cue (row edge + tinted room
+// pill) so it's obvious at a glance which building a poster is in.
+const VENUE_CLASS = { 'Grand Hall': 'grand', 'Coronado': 'coronado' }
+
 function PaperRow({ p, starred, onStar, conflict, dim }) {
   const dayShort = p.dayName.slice(0, 3)
+  const venue = VENUE_CLASS[p.room] || ''
   return (
-    <div className={`hub-paper ${starred ? 'starred' : ''} ${dim ? 'dim' : ''}`}>
+    <div className={`hub-paper ${starred ? 'starred' : ''} ${dim ? 'dim' : ''} ${venue ? `venue-${venue}` : ''}`}>
       <button
         className={`hub-star ${starred ? 'on' : ''}`}
         onClick={() => onStar(p.id)}
@@ -272,7 +277,7 @@ function PaperRow({ p, starred, onStar, conflict, dim }) {
       <div className="hub-paper-body">
         <div className="hub-paper-meta">
           <code className="hub-when">{dayShort} {p.start}–{p.end}</code>
-          <span className="hub-room">{p.room}</span>
+          <span className={`hub-room ${venue ? `room-${venue}` : ''}`}>{p.room}</span>
           <span className={`hub-type ${p.type === 'Keynote' ? 'keynote' : ''}`}>{p.type}</span>
           {conflict && <span className="hub-conflict"><AlertTriangle size={11} /> overlap</span>}
         </div>
@@ -631,7 +636,15 @@ export default function Hub() {
 }
 
 const HUB_CSS = `
-  .hub { min-height: 100vh; background: var(--bg); color: var(--text); }
+  .hub {
+    min-height: 100vh; background: var(--bg); color: var(--text);
+    --venue-grand: #34558b; --venue-grand-bg: rgba(52, 85, 139, 0.10);
+    --venue-coronado: #8a5a2b; --venue-coronado-bg: rgba(160, 110, 50, 0.13);
+  }
+  [data-theme="dark"] .hub {
+    --venue-grand: #94b8e0; --venue-grand-bg: rgba(148, 184, 224, 0.14);
+    --venue-coronado: #d9a96b; --venue-coronado-bg: rgba(217, 169, 107, 0.14);
+  }
   .hub .container { max-width: 940px; padding-top: 1.6rem; padding-bottom: 1.6rem; }
 
   /* Login */
@@ -731,6 +744,13 @@ const HUB_CSS = `
     padding: 0.1rem 0.4rem; border-radius: 3px;
   }
   .hub-room { font-size: 0.75rem; font-weight: 600; color: var(--primary); }
+  .hub-paper.venue-grand { border-left: 3px solid var(--venue-grand); padding-left: 0.7rem; }
+  .hub-paper.venue-coronado { border-left: 3px solid var(--venue-coronado); padding-left: 0.7rem; }
+  .hub-room.room-grand, .hub-room.room-coronado {
+    padding: 0.1rem 0.45rem; border-radius: 3px; font-weight: 700;
+  }
+  .hub-room.room-grand { color: var(--venue-grand); background: var(--venue-grand-bg); }
+  .hub-room.room-coronado { color: var(--venue-coronado); background: var(--venue-coronado-bg); }
   .hub-type { font-family: var(--font-mono); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--light-gray); }
   .hub-type.keynote {
     color: var(--primary); border: 1px solid var(--primary);
