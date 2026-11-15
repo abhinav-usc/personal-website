@@ -88,7 +88,7 @@ function App() {
     {
       year: "2026",
       items: [
-        { date: "JUL 2", icon: Mic, text: <>At <strong>ACL 2026</strong> in San Diego — presenting the <a className="news-link" href="https://aclanthology.org/2026.findings-acl.2038/" target="_blank" rel="noreferrer">SENSE</a> paper on July 5. Read my <a className="news-link" href="https://abhinav-gupta.notion.site/acl-2026" target="_blank" rel="noreferrer">conference notes</a>.</> },
+        { date: "JUL 2", icon: Mic, text: <>At <strong>ACL 2026</strong> in San Diego — presenting the <a className="news-link" href="https://aclanthology.org/2026.findings-acl.2038/" target="_blank" rel="noreferrer">SENSE</a> paper on July 5.</> },
         { date: "MAY", icon: GraduationCap, text: <>Graduating from USC with dual degrees in Computer Science and Cognitive Science, along with a specialization in AI Applications.</> },
         { date: "APR", icon: FileText, text: <>Two papers accepted at <strong>ACL 2026 Findings</strong>: <a className="news-link" href="https://aclanthology.org/2026.findings-acl.2038/" target="_blank" rel="noreferrer">Words that make SENSE</a> and <a className="news-link" href="https://aclanthology.org/2026.findings-acl.1641/" target="_blank" rel="noreferrer">Can LLMs Infer Human Actions and Motives?</a></> },
         { date: "MAR", icon: Award, text: <>Awarded the <a className="news-link" href="https://libraries.usc.edu/wallofscholars?award=1551" target="_blank" rel="noreferrer">USC Renaissance Scholar Prize</a>, given to 10 undergraduates for academic excellence and multidisciplinary research in distinct fields.</> },
@@ -280,9 +280,7 @@ function App() {
   const sweProjects = [
     { title: "Grad School Applications Assistant", description: "AI-powered web app to streamline graduate school applications by generating tailored personal statements, editing their materials, getting faculty recommendations, and getting detailed review and feedback on their applications", tech: ["React", "Node.js", "AI Integration"], link: "https://github.com/abhinav-usc/grad-app-assistant" },
     { title: "CampusMate", description: "Off-campus housing marketplace connecting college students with rental opportunities and roommates", tech: ["React", "AWS", "Full-Stack"], link: "https://main.d23lvw40p53qlv.amplifyapp.com/" },
-    { title: "Brandshake", description: "Platform connecting brands with influencers to discover, create, and manage marketing campaigns in one place", tech: ["iOS/Android", "Mobile Development"], link: "https://apps.apple.com/us/app/brandshake/id1613614806" },
     { title: "Podcast Content Automation · Amazon", description: "Internal tool built as an SDE intern at Amazon Music to automate podcast content management — reduced manual effort by 30% and improved data accuracy through AWS integrations.", tech: ["Java", "Python", "AWS"], link: "https://music.amazon.com/podcasts" },
-    { title: "Ethos", description: "Wellness companion app for mindful alcohol consumption tracking with personalized insights and community support", tech: ["Mobile Development", "Backend"], link: "https://apps.apple.com/by/app/ethos-mindful-consumption/id1622702389" },
     { title: "Personal Portfolio Website", description: "Code for this personal portfolio website showcasing my research, projects, and experience", tech: ["React", "Frontend Development"], link: "https://github.com/abhinav-usc/personal-website" },
   ]
 
@@ -421,7 +419,7 @@ function App() {
             <div className="hero-info">
               <h1 className="hero-title">Abhinav Gupta</h1>
               <p className="hero-subtitle">Researcher in NLP & Embodied AI</p>
-              <p className="hero-affiliation">M.S. Computer Science, New York University<br />B.S. Computer Science & B.A. Cognitive Science, University of Southern California</p>
+              <p className="hero-affiliation">B.S. Computer Science & B.A. Cognitive Science, University of Southern California</p>
               <div className="hero-links">
                 <a href="mailto:abghinav.cs@gmail.com" className="hero-link"><Mail size={15} /> abghinav.cs@gmail.com</a>
                 <a href="tel:+12132800780" className="hero-link"><Phone size={15} /> (213) 280-0780</a>
@@ -433,7 +431,7 @@ function App() {
             </div>
           </div>
           <div className="hero-bio">
-            <p>I'm a master's student in Computer Science at New York University, concentrating in Artificial Intelligence. I received my B.S. in Computer Science and B.A. in Cognitive Science from the University of Southern California with a specialization in AI Applications. I work on the development, analysis, and applications of language models rooted in human cognition and understanding — my research interests include Natural Language Processing, AI for Understanding Human Thought, Cognitive Science, and Human-Computer Interaction.</p>
+            <p>I received my B.S. in Computer Science and B.A. in Cognitive Science from the University of Southern California with a specialization in AI Applications. I work on the development, analysis, and applications of language models rooted in human cognition and understanding — my research interests include Natural Language Processing, AI for Understanding Human Thought, Cognitive Science, and Human-Computer Interaction.</p>
             <p>At USC, I was advised by <a className='lab-link' href="https://jessethomason.com/">Jesse Thomason</a>, <a className='lab-link' href="https://dornsife.usc.edu/tobenmintz/">Toben H. Mintz</a>, and <a className='lab-link' href="https://maja-mataric.web.app/">Maja Matarić</a>. My work has been supported by the USC Center for Undergraduate Research Fellowship, USC Provost Fellowship, and Undergraduate Research Associates Program.</p>
             <p>I graduated as a recipient of the <a className='lab-link' href="https://libraries.usc.edu/wallofscholars?award=1551" target="_blank" rel="noreferrer">USC Renaissance Scholar Prize</a>, awarded to ten undergraduates from the graduating class for academic excellence and multidisciplinary research in distinct fields, and the <a className='lab-link' href="https://ahf.usc.edu/commencement-honors/scholar-distinctions/discovery-2/" target="_blank" rel="noreferrer">Discovery Scholar Distinction</a> for my capstone research project.</p>
             <p className="currently-exploring"><strong>Currently exploring:</strong> How phonesthemes evoke sensorimotor experiences through human behavioral studies and computational modeling</p>
@@ -520,13 +518,13 @@ function App() {
           <h2 className="section-title"><Sparkles size={17} className="title-icon" aria-hidden="true" /> Miscellaneous</h2>
           <div className="misc-content">
             <p>Outside of research, I love to read and play guitar. I'm also an avid movie enthusiast.</p>
-            <p>I'm currently trying to learn Spanish and French. Progress: slow but enthusiastic.</p>
+            <p>Currently, I'm also trying to teach myself Spanish.</p>
           </div>
         </div>
       </section>
 
       <footer className="footer">
-        <p>© 2026 Abhinav Gupta · Last updated July 2026</p>
+        <p>© 2026 Abhinav Gupta · Last updated Nov 2026</p>
       </footer>
     </div>
   )

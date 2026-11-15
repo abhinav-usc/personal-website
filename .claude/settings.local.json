@@ -58,7 +58,15 @@
       "Bash(git -C /Users/abghinav/Developer/personal_website diff .claude/settings.local.json)",
       "Bash(git -C /Users/abghinav/Developer/personal_website diff scripts/acl_agenda_data.py)",
       "Bash(git -C /Users/abghinav/Developer/personal_website diff src/Hub.jsx)",
-      "Bash(curl -s \"https://api.github.com/repos/abhinav-usc/personal-website/actions/runs?per_page=1\")"
+      "Bash(curl -s \"https://api.github.com/repos/abhinav-usc/personal-website/actions/runs?per_page=1\")",
+      "Bash(node -e ' *)",
+      "WebSearch",
+      "WebFetch(domain:2026.aclweb.org)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --window-size=900,1000 --screenshot=/private/tmp/claude-501/-Users-abghinav-Developer-personal-website/bc2a0f6a-dddd-4d99-9a5f-12c641a5399e/scratchpad/venue_test.png file:///private/tmp/claude-501/-Users-abghinav-Developer-personal-website/bc2a0f6a-dddd-4d99-9a5f-12c641a5399e/scratchpad/venue_test.html)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --window-size=900,2200 --screenshot=/private/tmp/claude-501/-Users-abghinav-Developer-personal-website/bc2a0f6a-dddd-4d99-9a5f-12c641a5399e/scratchpad/venue_test2.png file:///private/tmp/claude-501/-Users-abghinav-Developer-personal-website/bc2a0f6a-dddd-4d99-9a5f-12c641a5399e/scratchpad/venue_test.html)",
+      "Bash(sips --cropOffset 1000 0 -c 600 900 /private/tmp/claude-501/-Users-abghinav-Developer-personal-website/bc2a0f6a-dddd-4d99-9a5f-12c641a5399e/scratchpad/venue_test2.png --out /private/tmp/claude-501/-Users-abghinav-Developer-personal-website/bc2a0f6a-dddd-4d99-9a5f-12c641a5399e/scratchpad/venue_dark.png)",
+      "Bash(sed -i '' 's/min-height: 100vh/min-height: 0/g' /private/tmp/claude-501/-Users-abghinav-Developer-personal-website/bc2a0f6a-dddd-4d99-9a5f-12c641a5399e/scratchpad/venue_test.html)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --window-size=900,1100 --screenshot=/private/tmp/claude-501/-Users-abghinav-Developer-personal-website/bc2a0f6a-dddd-4d99-9a5f-12c641a5399e/scratchpad/venue_test3.png file:///private/tmp/claude-501/-Users-abghinav-Developer-personal-website/bc2a0f6a-dddd-4d99-9a5f-12c641a5399e/scratchpad/venue_test.html)"
     ]
   }
 }
